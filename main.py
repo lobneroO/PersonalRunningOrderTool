@@ -420,7 +420,7 @@ def setup_gui():
     headline.grid(row=0, column=0, columnspan=4)
 
     file_path_entry = Entry(master=window)
-    file_path_entry.insert(END, 'data_summerbreeze2022.csv')
+    file_path_entry.insert(END, '')
     file_path_entry.grid(row=1, column=0, columnspan=2)
     csv_type = (("Comma Separated Values", "*.csv*"),)
     filebrowser_button = Button(master=window, text="...", command=lambda: browse_files(csv_type, file_path_entry))
