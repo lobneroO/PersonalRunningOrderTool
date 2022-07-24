@@ -15,6 +15,16 @@ You can import multiple selection files.
 The export can be done in any file format you want to, as it is just a text file of band names separated by commas.
 However, the default will be ".prot" such that you can easily see that it belongs to PRO.
 
+# Releases
+The releases are created on Arch Linux, since that is what I use.
+I assume the Linux executable will work on any distribution, but I cannot test this at the moment.
+
+For Windows, I create the .exe file in wine, so some things may fail or some differences my go unnoticed by me.
+It should work for the most part, but you can run the script directly in python or create your own executable if it doesn't.
+If you notice an error that would prevent Windows execution, please do share. 
+
+Both Linux and Windows executables are created with [PyInstaller](https://pyinstaller.org/en/stable/).
+
 # Usage
 The usage is fairly simple. First you create a line up .csv file, which you will then import. 
 You can then choose to save the line up for your event as a .pdf, or first select bands to mark before saving.
@@ -122,3 +132,13 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
+  
+- _The program creates .png image files of every date_
+  
+  Yes, this is currently intended behaviour, since I do not yet know which format would be the best to output. 
+  It will use the name you use for the .pdf file and the same directory as well.
+  
+- _Special characters don't work_
+
+  This seems to be a problem on Windows only. Since I use Arch Linux (btw), I cannot thoroughly debug and test for other operating systems.
+  You can try to run the script instead of a release exe, maybe your setup allows for special characters without problems.
