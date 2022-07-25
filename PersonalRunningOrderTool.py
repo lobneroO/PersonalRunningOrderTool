@@ -62,6 +62,10 @@ class LineUp:
         return None
 
 
+# The main window
+window = Tk()
+
+
 def get_timeless_date(dt) -> datetime:
     # make a copy of the date, so as to not overwrite the original info
     new_dt = copy.deepcopy(dt)
@@ -74,8 +78,6 @@ def get_timeless_date(dt) -> datetime:
 def parse_lineup(file_path) -> LineUp:
     """ Parse the line up from a file """
     stages = []
-    # TODO: is dates even used anymore?
-    dates = []
     bands = []
 
     for line in open(file_path, 'r', encoding='utf-8'):
@@ -93,8 +95,6 @@ def parse_lineup(file_path) -> LineUp:
             stages.append(stage)
 
         date_object = datetime.datetime.strptime(date, '%d.%m.%Y')
-        if not dates.__contains__(date_object):
-            dates.append(date_object)
 
         # parse the time and fit the date to it for a correct datetime object
         start_time_object = datetime.datetime.strptime(start, '%H:%M')
@@ -173,6 +173,10 @@ def print_running_order(bands_dict=None):
     # get the output path first. all images can be stored accordingly as individual files
     filetypes = (("Portable Document Format", "*.pdf*"),)
     pdf_path = save_file_as_browser(filetypes)
+    if pdf_path == "":
+        # probably the user canceled. therefore, just return here
+        return
+
     pdf_name_wo_ext = os.path.splitext(os.path.basename(pdf_path))[0]
     save_dir = os.path.dirname(pdf_path)
 
@@ -276,7 +280,7 @@ def print_running_order(bands_dict=None):
     pdf.close()
 
 
-def save_file_as_browser(filetypes=(("All files", "*.*"),)):
+def save_file_as_browser(parent=window, filetypes=(("All files", "*.*"),)):
     filename = filedialog.asksaveasfilename(initialdir=os.getcwd(),
                                             title="Select path and name for the file to be saved to",
                                             filetypes=filetypes)
@@ -362,6 +366,7 @@ def clear_selection(bands_selection):
 def open_band_selection_window():
     selection_window = Toplevel(window)
     selection_window.title("Band selection for Personal Running Order")
+    selection_window.wm_attributes('-topmost', 1)
 
     global lineup
 
@@ -444,8 +449,9 @@ def setup_gui():
     parse_button.grid(row=1, column=3)
 
 
-window = Tk()
+
 # prepare the linup for global access. about every function needs it anyway.
 lineup = None
 setup_gui()
+window.wm_attributes('-topmost', 1)
 window.mainloop()
