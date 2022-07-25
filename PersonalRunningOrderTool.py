@@ -78,7 +78,7 @@ def parse_lineup(file_path) -> LineUp:
     dates = []
     bands = []
 
-    for line in open(file_path, 'r'):
+    for line in open(file_path, 'r', encoding='utf-8'):
         if line.startswith('Band') or line.startswith('#'):
             # ignore the line, as it is only for description or comment
             continue
