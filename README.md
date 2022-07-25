@@ -140,5 +140,4 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
   
 - _Special characters don't work_
 
-  This seems to be a problem on Windows only. Since I use Arch Linux (btw), I cannot thoroughly debug and test for other operating systems.
-  You can try to run the script instead of a release exe, maybe your setup allows for special characters without problems.
+  This will be fixed in the next version. You can simply use a utf-8 encoding when reading in the .csv line up file.
