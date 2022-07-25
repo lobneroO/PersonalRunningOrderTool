@@ -107,6 +107,8 @@ It will open a file browser where you can enter a file name and choose a path fo
 While the basic functionality of PRO can give you a very helpful timetable, there are a few limitations and problems.
 - _You click a button but don't see the window that is supposed to open_
 
+  This will be fixed in the next version. Until then:
+  
   The window probably has opened, but is not visible to you. This happens on Arch Linux (and probably all distributions), when clicking e.g. the "Save Personal Running Order" button.
   The file browser will open behind the Band selection for Personal Running Order window. Therefore, double check in your taskbar or behind PROs window(s) for a new window.
 - _Your names or time stamps on the time table don't align with the box they are supposed to be in_
