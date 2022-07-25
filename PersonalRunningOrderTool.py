@@ -280,12 +280,38 @@ def print_running_order(bands_dict=None):
     pdf.close()
 
 
-def save_file_as_browser(parent=window, filetypes=(("All files", "*.*"),)):
+def save_file_as_browser(filetypes=(("All files", "*.*"),)):
     filename = filedialog.asksaveasfilename(initialdir=os.getcwd(),
                                             title="Select path and name for the file to be saved to",
                                             filetypes=filetypes)
 
-    # TODO: enforce an extension?
+    ext = os.path.splitext(filename)
+    if not ext.__contains__('.'):
+        # the user didn't enter an extension. add one here (unless *.* is allowed)
+        # there seems to be no way to query the last selected extension in the file browser
+        # therefore just add the default extension (i.e. the first one in filetypes)
+
+        is_empty_allowed = False
+        for filetype in filetypes:
+            if filetype[1] == "*.*":
+                is_empty_allowed = True
+                break
+
+        if not is_empty_allowed:
+            filename += filetypes[0][1].removesuffix('*').removeprefix('*')
+    else:
+        # check if the extension is a "legal" one (i.e. contained in filetypes)
+        is_legal = False
+        for filetype in filetypes:
+            if ext in filetype[1] or filetype[1] == "*.*":
+                is_legal = True
+                break
+
+        if not is_legal:
+            # not a legal filetype, default to the default
+            filename += filetypes[0][1].removesuffix('*').removeprefix('*')
+
+    print(filename)
     return filename
 
 
