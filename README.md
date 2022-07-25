@@ -143,3 +143,12 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
 - _Special characters don't work_
 
   This will be fixed in the next version. You can simply use a utf-8 encoding when reading in the .csv line up file.
+  
+- _A clashing between two bands is not recognized_
+
+  This can happen, if one band is playing late on one day and the other band starts during that time, but ends on the next day (i.e. after midnight).
+  This will be fixed in the next version.
+  
+- _The pdf file is saved without an extension_
+
+  You can manually add it, when saving. This will be fixed in the next version.
