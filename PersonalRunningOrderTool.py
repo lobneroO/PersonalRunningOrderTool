@@ -147,10 +147,21 @@ def get_time_clashing_bands(selection):
 
                 # a band clashes, if either start or end of band_i is between start and end of band_j
                 # (or vice versa)
-                start_i = band_i.start
-                end_i = band_i.end
-                start_j = band_j.start
-                end_j = band_j.end
+                start_i = band_i.start.time().hour + band_i.start.time().minute / 60
+                end_i = band_i.end.time().hour + band_i.end.time().minute / 60
+                start_j = band_j.start.time().hour + band_j.start.time().minute / 60
+                end_j = band_j.end.time().hour + band_j.end.time().minute / 60
+
+                # take care of a time wrap around at 0:00 AM! consider everything <4 as playing later, really
+                # this is not a clean approach (due to hardcoded 4), but should work in most cases
+                if start_i < 4:
+                    start_i += 24
+                if end_i < 4:
+                    end_i += 24
+                if start_j < 4:
+                    start_j += 24
+                if end_j < 4:
+                    end_j += 24
 
                 if (
                     ((start_i > start_j and start_i < end_j) or (end_i > start_j and end_i < end_j)) or\
