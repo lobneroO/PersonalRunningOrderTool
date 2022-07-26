@@ -87,9 +87,13 @@ First, you can choose how to save your running order - either as a .pdf or as se
 Note that you can disable both and still choose to save your results later on. 
 A filebrowser will open and you can choose a path and name, however since you enabled neither .pdf nor .png, no files will actually be created.
 
+The default settings are to save the .pdf file only.
+
 Lastly, you can choose the dpi resolution used for the plots (i.e. the images / pdf).
 The default size of the image / pdf will be A4 with a 200dpi resolution, which should suffice.
 If you plan to print this as a bigger file (say A3), you may want to increase the dpi to still get a feasible quality.
+
+The default is a settings of 200 dpi.
 
 Settings will not be saved after closing the program yet. If you make changes and restart the program, you will have to make the same changes again.
 
