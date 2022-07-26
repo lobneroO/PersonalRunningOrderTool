@@ -120,12 +120,7 @@ It will open a file browser where you can enter a file name and choose a path fo
 
 # What problems may occurr
 While the basic functionality of PRO can give you a very helpful timetable, there are a few limitations and problems.
-- _You click a button but don't see the window that is supposed to open_
 
-  This will be fixed in the next version. Until then:
-  
-  The window probably has opened, but is not visible to you. This happens on Arch Linux (and probably all distributions), when clicking e.g. the "Save Personal Running Order" button.
-  The file browser will open behind the Band selection for Personal Running Order window. Therefore, double check in your taskbar or behind PROs window(s) for a new window.
 - _Your names or time stamps on the time table don't align with the box they are supposed to be in_
 
   In this case, you probably have a very different amount of stages from what I used when developing.
@@ -149,21 +144,3 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
-  
-- _The program creates .png image files of every date_
-  
-  Yes, this is currently intended behaviour, since I do not yet know which format would be the best to output. 
-  It will use the name you use for the .pdf file and the same directory as well.
-  
-- _Special characters don't work_
-
-  This will be fixed in the next version. You can simply use a utf-8 encoding when reading in the .csv line up file.
-  
-- _A clashing between two bands is not recognized_
-
-  This can happen, if one band is playing late on one day and the other band starts during that time, but ends on the next day (i.e. after midnight).
-  This will be fixed in the next version.
-  
-- _The pdf file is saved without an extension_
-
-  You can manually add it, when saving. This will be fixed in the next version.
