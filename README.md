@@ -97,6 +97,9 @@ Lastly, you can choose the dpi resolution used for the plots (i.e. the images / 
 The default size of the image / pdf will be A4 with a 200dpi resolution, which should suffice.
 If you plan to print this as a bigger file (say A3), you may want to increase the dpi to still get a feasible quality.
 
+The "Apply Settings" will apply your chosen settings and close the settings window.
+The "Discard Changes" button will discard any changes you made and close the settings window.
+
 The default is a settings of 200 dpi.
 
 Settings will not be saved after closing the program yet. If you make changes and restart the program, you will have to make the same changes again.
