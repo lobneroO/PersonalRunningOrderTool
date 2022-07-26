@@ -62,6 +62,13 @@ class LineUp:
         return None
 
 
+@dataclass
+class Settings:
+    save_as_image: int = 0
+    save_as_pdf: int = 1
+    dpi: int = 200
+
+
 # The main window
 window = Tk()
 
@@ -178,18 +185,18 @@ def get_time_clashing_bands(selection):
 
 def print_running_order(bands_dict=None):
     global lineup
+    global settings
     # TODO: make this alternating for a stage
     colors = ['lightgray', 'darkgray']
 
     # get the output path first. all images can be stored accordingly as individual files
-    filetypes = (("Portable Document Format", "*.pdf*"),)
-    pdf_path = save_file_as_browser(filetypes)
-    if pdf_path == "":
+    save_path = save_file_as_browser()
+    if save_file_as_browser == "":
         # probably the user canceled. therefore, just return here
         return
 
-    pdf_name_wo_ext = os.path.splitext(os.path.basename(pdf_path))[0]
-    save_dir = os.path.dirname(pdf_path)
+    save_dir = os.path.dirname(save_path)
+    file_name = os.path.basename(save_path)
 
     # read out the selected bands
     selection = []
@@ -278,17 +285,19 @@ def print_running_order(bands_dict=None):
 
         day_str = day.strftime("%d.%m.%Y")
         plt.title(day_str, y=1.07)
-        file_path = os.path.join(save_dir, '{0}-{1}.png'.format(pdf_name_wo_ext, day_str))
-        plt.savefig(file_path, dpi=200)
-        print('saving {0}'.format(file_path))
+        if settings.save_as_image:
+            file_path = os.path.join(save_dir, '{0}-{1}.png'.format(file_name, day_str))
+            plt.savefig(file_path, dpi=settings.dpi)
+            print('saving {0}'.format(file_path))
         figures.append(fig)
 
     # print it all as one pdf
-    pdf = backend_pdf.PdfPages(pdf_path)
-    for fig in figures:
-        pdf.savefig(fig)
+    if settings.save_as_pdf:
+        pdf = backend_pdf.PdfPages(save_path + '.pdf')
+        for fig in figures:
+            pdf.savefig(fig)
 
-    pdf.close()
+        pdf.close()
 
 
 def save_file_as_browser(filetypes=(("All files", "*.*"),)):
@@ -456,6 +465,55 @@ def open_band_selection_window():
     save_order_button.grid(row=button_row_start, column=button_column_start + 3)
 
 
+def save_settings(settings_window, is_image, is_pdf, dpi):
+    global settings
+
+    settings.save_as_image = is_image.get()
+    settings.save_as_pdf = is_pdf.get()
+    settings.dpi = int(dpi.get())
+    print(is_image.get())
+    print(is_pdf.get())
+    print(dpi.get())
+
+    settings_window.destroy()
+
+
+def open_settings_window():
+    global settings
+
+    settings_window = Toplevel(window)
+    settings_window.title("Settings for Personal Running Order")
+    settings_window.wm_attributes('-topmost', 1)
+
+    image_is_checked = IntVar()
+    image_is_checked.set(settings.save_as_image)
+    save_image_checkbox = Checkbutton(master=settings_window, onvalue=1, offvalue=0, variable=image_is_checked)
+    save_image_checkbox.grid(row=0, column=0)
+    save_image_label = Label(master=settings_window, text="Save Running Order as .png images")
+    save_image_label.grid(row=0, column=1)
+
+    pdf_is_checked = IntVar()
+    pdf_is_checked.set(settings.save_as_pdf)
+    save_pdf_checkbox = Checkbutton(master=settings_window, onvalue=1, offvalue=0, variable=pdf_is_checked)
+    save_pdf_checkbox.grid(row=1, column=0)
+    save_pdf_label = Label(master=settings_window, text="Save Running Order as a .pdf")
+    save_pdf_label.grid(row=1, column=1)
+
+    dpi = StringVar(settings_window)
+    dpi.set(settings.dpi)
+    dpi_entry = Entry(master=settings_window, textvariable=dpi)
+    dpi_entry.grid(row=2, column=0)
+    dpi_label = Label(master=settings_window, text="Resolution for printing in dpi")
+    dpi_label.grid(row=2, column=1)
+
+    save_button = Button(master=settings_window, text="Apply Settings",
+                         command=lambda: save_settings(settings_window, image_is_checked, pdf_is_checked, dpi))
+    save_button.grid(row=3, column=0)
+
+    cancel_button = Button(master=settings_window, text="Discard Changes", command=lambda: settings_window.destroy())
+    cancel_button.grid(row=3, column=1)
+
+
 def setup_gui():
     """ Setup all GUI elements """
     headline = Label(master=window, text="Personal Running Order Tool")
@@ -485,10 +543,14 @@ def setup_gui():
                                                            create_personal_running_order_button]))
     parse_button.grid(row=1, column=3)
 
+    settings_button = Button(master=window, text="Settings", command=lambda: open_settings_window())
+    settings_button.grid(row=3, column=3)
 
 
-# prepare the linup for global access. about every function needs it anyway.
+# prepare the lineup for global access. about every function needs it anyway.
 lineup = None
+# settings should also be globally accessible
+settings = Settings
 setup_gui()
 window.wm_attributes('-topmost', 1)
 window.mainloop()
