@@ -78,6 +78,21 @@ Per default, the directory of the program is selected, so if you are unsure wher
 
 "Create Personal Running Order" will open a the Band selection for Personal Running Order window. 
 
+"Settings" will open the settings window.
+
+### Settings window
+The settings window will let you make a few settings.
+First, you can choose how to save your running order - either as a .pdf or as several .png files (or both).
+
+Note that you can disable both and still choose to save your results later on. 
+A filebrowser will open and you can choose a path and name, however since you enabled neither .pdf nor .png, no files will actually be created.
+
+Lastly, you can choose the dpi resolution used for the plots (i.e. the images / pdf).
+The default size of the image / pdf will be A4 with a 200dpi resolution, which should suffice.
+If you plan to print this as a bigger file (say A3), you may want to increase the dpi to still get a feasible quality.
+
+Settings will not be saved after closing the program yet. If you make changes and restart the program, you will have to make the same changes again.
+
 ### Band selection for Personal Running Order window
 This window contains in a grid all the bands of the line up in alphabetical order. 
 On the left side of each band is its associated checkbox. 
