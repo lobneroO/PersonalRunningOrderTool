@@ -82,6 +82,10 @@ Per default, the directory of the program is selected, so if you are unsure wher
 
 ### Settings window
 The settings window will let you make a few settings.
+
+![image](https://user-images.githubusercontent.com/17877050/181109267-033b6d36-024f-4446-a74c-30642f48137c.png)
+
+
 First, you can choose how to save your running order - either as a .pdf or as several .png files (or both).
 
 Note that you can disable both and still choose to save your results later on. 
