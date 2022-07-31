@@ -1,3 +1,4 @@
+# Table of Contents
 - [PersonalRunningOrderTool Description](#personalrunningordertool-description)
 - [What does it do](#what-does-it-do)
 - [Releases](#releases)
