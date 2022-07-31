@@ -1,4 +1,20 @@
-# PersonalRunningOrderTool
+- [PersonalRunningOrderTool Description](#personalrunningordertool-description)
+- [What does it do](#what-does-it-do)
+- [Releases](#releases)
+- [Usage](#usage)
+  * [Line Up .csv file](#line-up-csv-file)
+    + [Bands playing after 0:00 AM](#bands-playing-after-0-00-am)
+  * [The GUI](#the-gui)
+    + [Main window](#main-window)
+    + [Settings window](#settings-window)
+    + [Band selection for Personal Running Order window](#band-selection-for-personal-running-order-window)
+- [What problems may occur](#what-problems-may-occur)
+- [Building the project](#building-the-project)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
+# PersonalRunningOrderTool Description
 A tool to create personalized running orders of events, such as festivals. 
 
 # What does it do
