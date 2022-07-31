@@ -25,7 +25,8 @@ You can also mark all the bands you want to see at the festival, which will then
 If two bands clash in their times, the marking will reflect that (currently in red).
 
 Here is an example of what it might look like (with the Summer-Breeze Line Up of 2022 on that given day).
-![17 08 2022](https://user-images.githubusercontent.com/17877050/180657284-5b92fc2c-a697-487b-9057-b37fc75f719c.png)
+![docu-17 08 2022](https://user-images.githubusercontent.com/17877050/182021209-8dd4ed3d-d114-409d-8f4d-f76aad437d36.png)
+
 
 Once you have created a selection of bands, you can also export this list, and later reimport it. 
 You can import multiple selection files.
@@ -68,7 +69,7 @@ E.g. consider this entry in the line-up .csv file:
     `Igorrr,20.08.2022,2:15,3:00,T-Stage`
     
 In the pdf it would appear in the timetable for 20.08.2022 at the very end:
-![image](https://user-images.githubusercontent.com/17877050/180658921-22285c73-fd40-4828-ae24-a6412ea6f810.png)
+![image](https://user-images.githubusercontent.com/17877050/182021244-3e153f9b-4cd7-497d-9f53-8e6be6ba7f35.png)
 
 
 ## The GUI
@@ -126,7 +127,7 @@ This window contains in a grid all the bands of the line-up in alphabetical orde
 On the left side of each band is its associated checkbox. 
 If you would like a band marked in the output .pdf, select its checkbox here.
 
-![image](https://user-images.githubusercontent.com/17877050/180658034-23705cf6-1b82-43e3-818b-8aedfbb1f4dc.png)
+![image](https://user-images.githubusercontent.com/17877050/182021125-1f733a46-b08d-4c7d-b579-6d0681b8f2a6.png)
 
 If you want to edit this selection later on, you need to export it. 
 In order to export it, use the "Export Personal Running Order Selection" button. 
