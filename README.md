@@ -134,7 +134,8 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
 
 - _Your names or time stamps on the time table don't align with the box they are supposed to be in_
 
-  In this case, you probably have a very different amount of stages from what I used when developing.
+  This should be fixed in the new version. 
+  You probably have a very different amount of stages from what I used when developing.
   The layout is not yet very stable and is currently tested only for four different stages. It is probably legible with three or five stages, but might become worse with greater differences.
 - _You have a band / event that plays / happens on multiple days_
 
@@ -144,7 +145,8 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
   You can work around this, by giving each time this band plays / event happens, the band a unique name (e.g. "Disco (Wed)" and "Disco (Thu)") in the line up .csv file.
 - _The time stamps in the time table are writing over the band's name_
 
-  With very short slots, there is very little place to put the stamps. Currently, no check for space is implemented, thus the name and time stamps will write into their positions every time.
+  With very short slots, there is very little place to put the stamps. 
+  Currently, no check for space is implemented, thus the name and time stamps will write into their positions every time.
 - _The time axes (y axes) exceeds 24_
 
   Sorry about that. This is more or less my first python script and I did this in a weekend. I do not know how to fix that yet.

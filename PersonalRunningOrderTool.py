@@ -223,10 +223,13 @@ def print_running_order(bands_dict=None):
         hours = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
                  "19:00", "20:00", "21:00", "22:00", "23:00", "0:00", "1:00", "2:00", "3:00", "4:00"]
 
+        # for readability of the resulting plot, offset the x position by 0.5
+        x_offset_axis = 0.5
+
         # set axes (for bottom left first, then mirror for upper right)
         axis_bl = fig.add_subplot(111)
         axis_bl.yaxis.grid()
-        axis_bl.set_xlim(0.5, len(stages) + 0.5)
+        axis_bl.set_xlim(x_offset_axis, len(stages) + x_offset_axis)
         # it will be read downwards, therefore invert the time labels on the axis
         axis_bl.set_ylim(27.3, 10.9)
         axis_bl.set_xticks(range(1, len(stages) + 1))
@@ -263,24 +266,43 @@ def print_running_order(bands_dict=None):
                     col = 'red'
                 else:
                     col = 'green'
-            band_rectangle = patches.Rectangle([stages.index(stage) + 0.5, start], 0.9, end - start,
+            # the rectangle_width is "normalized" to number of stages. i.e. 1 is exactly one stage width, scaling
+            # with the number of stages. with 1, there would be no space between tow adjoining stages
+            rectangle_width = 0.95
+            # take into consideration the x_offset used for the x-axis
+            x_offset = x_offset_axis + (1 - rectangle_width) * 0.5
+            band_rectangle = patches.Rectangle([stages.index(stage) + x_offset, start], rectangle_width, end - start,
                                                color=col,  # colors[int(band.start.time().hour % len(colors))],
                                                linewidth=0.5)
             axis_bl.add_patch(band_rectangle)
 
-            # TODO: the time's layout in the rectangle is "hardcoded",
-            #  but it should be dynamic based on image or rectangle size
             # print the actual start time to make it legible
-            plt.text(stages.index(stage) + 0.5, start + 0.05,
+            y_margin = 0.05
+            time_font_size = 7
+            plt.text(stages.index(stage) + x_offset, start + y_margin,
                      '{0}:{1:0>2}'.format(band.start.time().hour, band.start.time().minute),
-                     va='top', fontsize=7)
+                     va='top', fontsize=time_font_size)
             # also the end time on the opposite corner (thus preventing it from writing over the start time)
-            plt.text(stages.index(stage) + 1.25, end - 0.3,
-                     '{0}:{1:0>2}'.format(band.end.time().hour, band.end.time().minute),
-                     va='top', fontsize=7)
+            # first, just plot the time to get the size of it (and plot it somewhere where it can't be seen)
+            t = plt.text(-10, -10, '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
+                          va='top', fontsize=time_font_size)
+            bb = t.get_window_extent(renderer=fig.canvas.get_renderer()).transformed(
+                axis_bl.transData.inverted())
+
+            # now print it into the plot at the correct position
+            # that is: x = end_of_rectangle.x-text_width + x_offset
+            # (where the x_offset is the one used for the x-axis)
+            # and: y = end_of_rectangle.y-text_height
+            x_coord = stages.index(stage) + rectangle_width - bb.width + x_offset
+            # for whatever reason, the bbox y value is negative, therefore add it here to avoid a double negative
+            y_coord = end + bb.height
+
+            plt.text(x_coord, y_coord,
+                     '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
+                     va='top', fontsize=time_font_size)
 
             # print the name of the band
-            plt.text(stages.index(stage) + 1 - 0.03, (start + end) * 0.5, band.name, ha='center', va='center',
+            plt.text(stages.index(stage)+1, (start + end) * 0.5, band.name, ha='center', va='center',
                      fontsize=9)
 
         day_str = day.strftime("%d.%m.%Y")
