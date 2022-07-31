@@ -158,3 +158,11 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
+
+# Building the project
+The project releases are created with PyInstaller on Arch Linux and through Wine on Windows.
+You should be able to use any tool of your choosing suited for this task, but if you have a similar setup
+(i.e. you use Linux and have wine installed, as well as PyInstaller for both), then you can run the create_release.sh script
+to create a single-file release of your own.
+A dist folder should be created next to the PersonalRunningOrderTool.py script, in which then lies one executable for 
+Linux and one for Windows
