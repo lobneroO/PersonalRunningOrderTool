@@ -438,11 +438,30 @@ def open_band_selection_window():
 
     global lineup
 
+    # we will want one section with all the bands to choose from, and one with buttons to click
+    # to keep them separated and thus not screwing up the layout, put them into individual frames
+    band_frame = Frame(selection_window)
+    band_frame.grid(row=0, column=0)
+    control_frame = Frame(selection_window)
+    control_frame.grid(row=1, column=0)
+
     # sort bands alphabetically. for that, we need an array with just the names
     bands_list = []
     for band in lineup.bands:
         bands_list.append(band.name)
     bands_list.sort()
+
+    # the alphabetical order should be displayed downwards first, then to the right second
+    # (e.g:     Aborted             Arch Enemy      Blind Guardian
+    #           Amon Amarth         Benediction     Bloodshot Dawn
+    #           Anaal Nathrakh      Benighted       Cannibal Corpse)
+    #
+    # for this to work, we need to know the number of bands before starting to lay them out
+    num_bands = len(bands_list)
+
+    # if we set the max_columns we want to use, we can see how many rows we get
+    max_columns = 6
+    max_rows = int(num_bands / max_columns)
 
     # store all bands in a dictionary, where the value is the variable
     # the ceckbox's state can be read and written to via the variable
@@ -451,38 +470,37 @@ def open_band_selection_window():
     # parse all the bands and list them
     row = 0
     column = 0
-    max_columns = 6
     for band in bands_list:
         # every band needs a checkbox before its name
         is_checked = IntVar()
-        band_checkbox = Checkbutton(master=selection_window, onvalue=1, offvalue=0, variable=is_checked)
+        band_checkbox = Checkbutton(master=band_frame, onvalue=1, offvalue=0, variable=is_checked)
         band_checkbox.grid(row=row, column=2*column)
         bands_dict[band] = is_checked
 
-        band_label = Label(master=selection_window, text=band)
+        band_label = Label(master=band_frame, text=band)
         band_label.grid(row=row, column=2*column+1)
 
-        column += 1
-        if column > max_columns:
-            column = 0
-            row += 1
+        row += 1
+        if row > max_rows:
+            row = 0
+            column += 1
 
-    button_column_start = int(max_columns*0.5)
-    button_row_start = row+1
+    button_column_start = 0
+    button_row_start = 0
 
-    import_button = Button(master=selection_window, text="Import Personal Running Order Selection",
+    import_button = Button(master=control_frame, text="Import Personal Running Order Selection",
                            command=lambda: import_selection(bands_dict))
     import_button.grid(row=button_row_start, column=button_column_start)
 
-    export_button = Button(master=selection_window, text="Export Personal Running Order Selection",
+    export_button = Button(master=control_frame, text="Export Personal Running Order Selection",
                            command=lambda: export_selection(bands_dict))
     export_button.grid(row=button_row_start, column=button_column_start + 1)
 
-    clear_button = Button(master=selection_window, text="Clear selection",
+    clear_button = Button(master=control_frame, text="Clear selection",
                           command=lambda: clear_selection(bands_dict))
     clear_button.grid(row=button_row_start, column=button_column_start + 2)
 
-    save_order_button = Button(master=selection_window, text="Save Personal Running Order",
+    save_order_button = Button(master=control_frame, text="Save Personal Running Order",
                                command=lambda: print_running_order(bands_dict))
     save_order_button.grid(row=button_row_start, column=button_column_start + 3)
 
