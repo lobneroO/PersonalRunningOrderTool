@@ -490,19 +490,19 @@ def open_band_selection_window():
 
     import_button = Button(master=control_frame, text="Import Personal Running Order Selection",
                            command=lambda: import_selection(bands_dict))
-    import_button.grid(row=button_row_start, column=button_column_start)
+    import_button.grid(row=0, column=0)
 
     export_button = Button(master=control_frame, text="Export Personal Running Order Selection",
                            command=lambda: export_selection(bands_dict))
-    export_button.grid(row=button_row_start, column=button_column_start + 1)
+    export_button.grid(row=0, column=1)
 
     clear_button = Button(master=control_frame, text="Clear selection",
                           command=lambda: clear_selection(bands_dict))
-    clear_button.grid(row=button_row_start, column=button_column_start + 2)
+    clear_button.grid(row=0, column=2)
 
     save_order_button = Button(master=control_frame, text="Save Personal Running Order",
                                command=lambda: print_running_order(bands_dict))
-    save_order_button.grid(row=button_row_start, column=button_column_start + 3)
+    save_order_button.grid(row=0, column=3)
 
 
 def save_settings(settings_window, is_image, is_pdf, dpi):
