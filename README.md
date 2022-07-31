@@ -150,12 +150,6 @@ It will open a file browser where you can enter a file name and choose a path fo
 # What problems may occur
 While the basic functionality of PRO can give you a very helpful timetable, there are a few limitations and problems.
 
-- _Your names or time stamps on the timetable don't align with the box they are supposed to be in_
-
-  This should be fixed in the new version. 
-  You probably have a very different amount of stages from what I used when developing.
-  The layout is not yet very stable and is currently tested only for four different stages. 
-  It is probably legible with three or five stages, but might become worse with greater differences.
 - _You have a band / event that plays / happens on multiple days_
 
   On Summer-Breeze, the Disco happens every evening. This is not a problem for the general timetable, if they occur multiple times in the .csv file, each with their own date.
@@ -166,6 +160,8 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
 
   With very short slots, there is very little place to put the stamps. 
   Currently, no check for space is implemented, thus the name and time stamps will write into their positions every time.
+  If you need a workaround, shorten the band name in your line-up .csv file
+  (e.g. "Fleshgod Apocalypse" can become "Fleshgod" or simply "FA").
 - _The time axes (y axes) exceeds 24_
 
   Sorry about that. This is more or less my first python script, and I did this in a weekend. I do not know how to fix that yet.
@@ -176,6 +172,11 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
+- _The program does not exit when I close the main window_
+
+  This seems to be a Tkinter problem, which is the GUI Framework used for PRO.
+  The program does not use horrific amounts of system resources, so I will not prioritize this highly for now.
+  You should be able to close the program with chosen task manager, if it hasn't closed automatically.
 
 # Building the project
 The project releases are created with PyInstaller on Arch Linux and through Wine on Windows.
