@@ -24,6 +24,7 @@ import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox
 
 # TODO: debug, delete
 import os
@@ -87,7 +88,10 @@ def parse_lineup(file_path) -> LineUp:
     stages = []
     bands = []
 
+    # first thing is to increase the line number, so we can set it to 0, then we "start" at 1
+    lineNumber = 0
     for line in open(file_path, 'r', encoding='utf-8'):
+        lineNumber += 1
         if line.startswith('Band') or line.startswith('#'):
             # ignore the line, as it is only for description or comment
             continue
@@ -101,7 +105,15 @@ def parse_lineup(file_path) -> LineUp:
         if not stages.__contains__(stage):
             stages.append(stage)
 
-        date_object = datetime.datetime.strptime(date, '%d.%m.%Y')
+        date_object = ""
+        try:
+            date_object = datetime.datetime.strptime(date, '%d.%m.%Y')
+        except:
+            # TODO: open window showing the user an error occurred and where it occured
+            errMsg = 'Could not parse date on line ' + str(lineNumber) +'\n'
+            errMsg += 'Invalid line: ' + line
+            messagebox.showerror('Parsing error', errMsg)
+            return
 
         # parse the time and fit the date to it for a correct datetime object
         start_time_object = datetime.datetime.strptime(start, '%H:%M')
