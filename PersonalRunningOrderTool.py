@@ -92,16 +92,25 @@ def parse_lineup(file_path) -> LineUp:
     lineNumber = 0
     for line in open(file_path, 'r', encoding='utf-8'):
         lineNumber += 1
-        if line.startswith('Band') or line.startswith('#'):
+        if line.startswith('Band') or line.startswith('#') or line == "\n" or not line:
             # ignore the line, as it is only for description or comment
             continue
 
         data = line.split(',')
-        name = data[0]
-        date = data[1]
-        start = data[2]
-        end = data[3]
-        stage = data[4].replace('\n', '')
+        # setup the variables in this scope
+        name = ""
+        date = ""
+        start = ""
+        end = ""
+        stage = ""
+        try:
+            name = data[0]
+            date = data[1]
+            start = data[2]
+            end = data[3]
+            stage = data[4].replace('\n', '')
+        except:
+            print("Could not parse line ", line, " at line ", lineNumber)
         if not stages.__contains__(stage):
             stages.append(stage)
 
