@@ -70,6 +70,37 @@ class Settings:
     dpi: int = 200
 
 
+@dataclass
+class Stage:
+
+    def __init__(self, name):
+        self.name = name
+        self.checkbox = Checkbutton()
+        self.isEnabled = IntVar(value=1)
+
+    def create_selection_gui(self, parent):
+        row = parent.grid_size()[1]
+        tk_name = self.name.replace(".", "").replace(" ", "")
+        self.checkbox = Checkbutton(master=parent, onvalue=1, offvalue=0, variable=self.isEnabled,
+                                    name="checkbox"+tk_name)
+        self.checkbox.grid(row=row, column=0)
+        self.checkbox.select()
+        self.label = Label(master=parent, text=self.name, name="label"+tk_name)
+        self.label.grid(row=row, column=1)
+
+    def is_enabled(self) -> bool:
+        try:
+            return self.isEnabled.get() == 1
+        except:
+            print("fuck")
+
+    # TODO: enable ordering
+    checkbox: Checkbutton = None
+    label: Label = None
+    isEnabled: IntVar = None
+    name: string = ""
+
+
 # The main window
 window = Tk()
 
@@ -83,9 +114,27 @@ def get_timeless_date(dt) -> datetime:
     return new_dt
 
 
+def add_stages_to_gui(stage_names):
+    global stages
+
+    # make sure the global list is not None but a valid list
+    if not stages:
+        stages = []
+
+    # create stage objects in the global list
+    for stage in stage_names:
+        s = Stage(stage)
+        stages.append(s)
+
+    # add a line with checkbox and label to the main window
+    # to enable stage selection
+    for stage in stages:
+        stage.create_selection_gui(window)
+
+
 def parse_lineup(file_path) -> LineUp:
-    """ Parse the line up from a file """
-    stages = []
+    """ Parse the line-up from a file """
+    stage_names = []
     bands = []
 
     # first thing is to increase the line number, so we can set it to 0, then we "start" at 1
@@ -97,7 +146,7 @@ def parse_lineup(file_path) -> LineUp:
             continue
 
         data = line.split(',')
-        # setup the variables in this scope
+        # set up the variables in this scope
         name = ""
         date = ""
         start = ""
@@ -111,8 +160,8 @@ def parse_lineup(file_path) -> LineUp:
             stage = data[4].replace('\n', '')
         except:
             print("Could not parse line ", line, " at line ", lineNumber)
-        if not stages.__contains__(stage):
-            stages.append(stage)
+        if not stage_names.__contains__(stage):
+            stage_names.append(stage)
 
         date_object = ""
         try:
@@ -148,7 +197,7 @@ def parse_lineup(file_path) -> LineUp:
 
         days[date].append(band)
 
-    return LineUp(stages, days, bands)
+    return LineUp(stage_names, days, bands)
 
 
 def get_time_clashing_bands(selection):
@@ -207,6 +256,7 @@ def get_time_clashing_bands(selection):
 def print_running_order(bands_dict=None):
     global lineup
     global settings
+    global stages
     # TODO: make this alternating for a stage
     colors = ['lightgray', 'darkgray']
 
@@ -229,8 +279,11 @@ def print_running_order(bands_dict=None):
     # get the selected bands with time clashes
     clashing_bands = get_time_clashing_bands(selection)
 
-    stages = lineup.stages
-    print(stages)
+    stage_names = lineup.stages
+    for stage in stages:
+        if not stage.is_enabled():
+            stage_names.remove(stage.name)
+    print(stage_names)
     figures = []
 
     # loop all days, each day gets its own image
@@ -250,11 +303,11 @@ def print_running_order(bands_dict=None):
         # set axes (for bottom left first, then mirror for upper right)
         axis_bl = fig.add_subplot(111)
         axis_bl.yaxis.grid()
-        axis_bl.set_xlim(x_offset_axis, len(stages) + x_offset_axis)
+        axis_bl.set_xlim(x_offset_axis, len(stage_names) + x_offset_axis)
         # it will be read downwards, therefore invert the time labels on the axis
         axis_bl.set_ylim(27.3, 10.9)
-        axis_bl.set_xticks(range(1, len(stages) + 1))
-        axis_bl.set_xticklabels(stages)
+        axis_bl.set_xticks(range(1, len(stage_names) + 1))
+        axis_bl.set_xticklabels(stage_names)
         axis_bl.set_ylabel('Time')
         # axis_bl.set_yticks(range(1, len(hours) + 1))
         # axis_bl.set_yticklabels(hours)
@@ -263,13 +316,16 @@ def print_running_order(bands_dict=None):
         axis_ur.set_xlim(axis_bl.get_xlim())
         axis_ur.set_ylim(axis_bl.get_ylim())
         axis_ur.set_xticks(axis_bl.get_xticks())
-        axis_ur.set_xticklabels(stages)
+        axis_ur.set_xticklabels(stage_names)
         axis_ur.set_ylabel('Time')
         # axis_ur.set_yticks(axis_bl.get_yticks())
         # axis_ur.set_yticklabels(axis_bl.get_yticklabels())
 
         # add all the band plots
         for band in lineup.dates[day]:
+            stage = band.stage
+            if stage not in stage_names:
+                continue
             start = band.start.time().hour + band.start.time().minute / 60
             # assume that no band will play after 4!
             # this is a bit hacky, but we need some time wrap around at 23:59->0:00
@@ -278,7 +334,6 @@ def print_running_order(bands_dict=None):
             end = band.end.time().hour + band.end.time().minute / 60
             if end < 4:
                 end += 24
-            stage = band.stage
 
             # plot the band onto the correct stage
             col = 'lightgray'
@@ -292,7 +347,7 @@ def print_running_order(bands_dict=None):
             rectangle_width = 0.95
             # take into consideration the x_offset used for the x-axis
             x_offset = x_offset_axis + (1 - rectangle_width) * 0.5
-            band_rectangle = patches.Rectangle([stages.index(stage) + x_offset, start], rectangle_width, end - start,
+            band_rectangle = patches.Rectangle([stage_names.index(stage) + x_offset, start], rectangle_width, end - start,
                                                color=col,  # colors[int(band.start.time().hour % len(colors))],
                                                linewidth=0.5)
             axis_bl.add_patch(band_rectangle)
@@ -300,7 +355,7 @@ def print_running_order(bands_dict=None):
             # print the actual start time to make it legible
             y_margin = 0.05
             time_font_size = 7
-            plt.text(stages.index(stage) + x_offset, start + y_margin,
+            plt.text(stage_names.index(stage) + x_offset, start + y_margin,
                      '{0}:{1:0>2}'.format(band.start.time().hour, band.start.time().minute),
                      va='top', fontsize=time_font_size)
             # also the end time on the opposite corner (thus preventing it from writing over the start time)
@@ -314,7 +369,7 @@ def print_running_order(bands_dict=None):
             # that is: x = end_of_rectangle.x-text_width + x_offset
             # (where the x_offset is the one used for the x-axis)
             # and: y = end_of_rectangle.y-text_height
-            x_coord = stages.index(stage) + rectangle_width - bb.width + x_offset
+            x_coord = stage_names.index(stage) + rectangle_width - bb.width + x_offset
             # for whatever reason, the bbox y value is negative, therefore add it here to avoid a double negative
             y_coord = end + bb.height
 
@@ -323,7 +378,7 @@ def print_running_order(bands_dict=None):
                      va='top', fontsize=time_font_size)
 
             # print the name of the band
-            plt.text(stages.index(stage)+1, (start + end) * 0.5, band.name, ha='center', va='center',
+            plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band.name, ha='center', va='center',
                      fontsize=9)
 
         day_str = day.strftime("%d.%m.%Y")
@@ -391,13 +446,15 @@ def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
 
 
 def execute_parsing(file_path, buttons_to_activate):
-    # we want to write to the global line up, thus we don't have to carry it about as a parameter
+    # we want to write to the global line-up, thus we don't have to carry it about as a parameter
     global lineup
     lineup = parse_lineup(file_path)
     if lineup is not None:
         for button in buttons_to_activate:
             button['state'] = NORMAL
 
+        # add the stages to the main window for en-/disabling and sorting
+        add_stages_to_gui(lineup.stages)
 
 def import_selection(bands_selection):
     # first get the file to read the selected bands
@@ -610,6 +667,8 @@ def setup_gui():
 
 # prepare the lineup for global access. about every function needs it anyway.
 lineup = None
+# set up the stages for easy en- and disabling
+stages = None
 # settings should also be globally accessible
 settings = Settings
 setup_gui()
