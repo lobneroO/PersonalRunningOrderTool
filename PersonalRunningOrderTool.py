@@ -18,7 +18,6 @@
 import datetime
 
 from tkinter import *
-from tkinter import filedialog
 from tkinter import messagebox
 
 from classes import Band
@@ -26,9 +25,10 @@ from classes import LineUp
 from classes import Settings
 from classes import Stage
 
-
-from utils import print_running_order
+from utils import browse_files
+from utils import save_settings
 from utils import save_file_as_browser
+from utils import print_running_order
 
 import os
 
@@ -123,18 +123,6 @@ def parse_lineup(file_path) -> LineUp:
     return LineUp(stage_names, days, bands)
 
 
-def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
-    filename = filedialog.askopenfilename(initialdir=os.getcwd(),
-                                          title="Select input data file",
-                                          filetypes=filetypes)
-
-    if entry_box is not None:
-        entry_box.delete(0, END)
-        entry_box.insert(0, filename)
-
-    return filename
-
-
 def execute_parsing(file_path, buttons_to_activate):
     # we want to write to the global line-up, thus we don't have to carry it about as a parameter
     global lineup
@@ -145,6 +133,7 @@ def execute_parsing(file_path, buttons_to_activate):
 
         # add the stages to the main window for en-/disabling and sorting
         add_stages_to_gui(lineup.stages)
+
 
 def import_selection(bands_selection):
     # first get the file to read the selected bands
@@ -275,19 +264,6 @@ def open_band_selection_window():
     save_order_button.grid(row=0, column=3)
 
 
-def save_settings(settings_window, is_image, is_pdf, dpi):
-    global settings
-
-    settings.save_as_image = is_image.get()
-    settings.save_as_pdf = is_pdf.get()
-    settings.dpi = int(dpi.get())
-    print(is_image.get())
-    print(is_pdf.get())
-    print(dpi.get())
-
-    settings_window.destroy()
-
-
 def open_settings_window():
     global settings
 
@@ -317,7 +293,7 @@ def open_settings_window():
     dpi_label.grid(row=2, column=1)
 
     save_button = Button(master=settings_window, text="Apply Settings",
-                         command=lambda: save_settings(settings_window, image_is_checked, pdf_is_checked, dpi))
+                         command=lambda: save_settings(settings, settings_window, image_is_checked, pdf_is_checked, dpi))
     save_button.grid(row=3, column=0)
 
     cancel_button = Button(master=settings_window, text="Discard Changes", command=lambda: settings_window.destroy())

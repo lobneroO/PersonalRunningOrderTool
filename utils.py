@@ -20,6 +20,7 @@ import datetime
 import os
 
 from tkinter import filedialog
+from tkinter import END
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -33,6 +34,29 @@ def get_timeless_date(dt) -> datetime:
     new_dt = new_dt.replace(minute=0)
 
     return new_dt
+
+
+def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
+    filename = filedialog.askopenfilename(initialdir=os.getcwd(),
+                                          title="Select input data file",
+                                          filetypes=filetypes)
+
+    if entry_box is not None:
+        entry_box.delete(0, END)
+        entry_box.insert(0, filename)
+
+    return filename
+
+
+def save_settings(settings, settings_window, is_image, is_pdf, dpi):
+    settings.save_as_image = is_image.get()
+    settings.save_as_pdf = is_pdf.get()
+    settings.dpi = int(dpi.get())
+    print(is_image.get())
+    print(is_pdf.get())
+    print(dpi.get())
+
+    settings_window.destroy()
 
 
 def save_file_as_browser(filetypes=(("All files", "*.*"),)):
