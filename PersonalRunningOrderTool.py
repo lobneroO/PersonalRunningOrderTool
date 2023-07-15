@@ -26,11 +26,11 @@ from classes import Settings
 from classes import Stage
 
 from utils import browse_files
-from utils import save_settings
-from utils import save_file_as_browser
+from utils import clear_selection
+from utils import export_selection
+from utils import import_selection
 from utils import print_running_order
-
-import os
+from utils import save_settings
 
 
 # The main window
@@ -135,59 +135,6 @@ def execute_parsing(file_path, buttons_to_activate):
         add_stages_to_gui(lineup.stages)
 
 
-def import_selection(bands_selection):
-    # first get the file to read the selected bands
-    file_types = (("Personal Running Order text file", "*.prot*"), ("Text files", "*.txt*"), ("All files", "*.*"))
-    filepath = browse_files(file_types)
-    f = open(filepath, "r")
-
-    # the bands are comma separated in just one line
-    line = f.read()
-    bands = line.split(",")
-
-    # check if any of the bands don#t exist. if so, this is an illegal file and the user should be made aware
-    global lineup
-    bands_to_remove = []
-    for band in bands:
-        if not lineup.contains_band(band):
-            # TODO: this needs to become a warning window!
-            print("There are some bands in your selection, which are not present in the line up!")
-            bands_to_remove.append(band)
-
-    # remove illegal bands
-    for band in bands_to_remove:
-        bands.remove(band)
-
-    for band in bands:
-        bands_selection[band].set(1)
-
-
-# TODO: what about bands / events that take place twice but on different days?
-def export_selection(bands_selection):
-    selected_bands = []
-    for band in bands_selection:
-        checkbox = bands_selection[band]
-        if checkbox.get() == 1:
-            selected_bands.append(band)
-
-    filetypes = (("Personal Running Order text file", "*.prot*"), ("Text file", "*.txt*"))
-    filename = save_file_as_browser(filetypes)
-
-    # write list of selected bands to simple text file, separated only by comma
-    f = open(filename, "w")
-    i = 0
-    for band in selected_bands:
-        f.write(band)
-        if i < len(selected_bands) - 1:
-            f.write(',')
-        i += 1
-
-
-def clear_selection(bands_selection):
-    for band in bands_selection:
-        bands_selection[band].set(0)
-
-
 def open_band_selection_window():
     selection_window = Toplevel(window)
     selection_window.title("Band selection for Personal Running Order")
@@ -223,7 +170,7 @@ def open_band_selection_window():
     max_rows = int(num_bands / max_columns)
 
     # store all bands in a dictionary, where the value is the variable
-    # the ceckbox's state can be read and written to via the variable
+    # the checkbox's state can be read and written to via the variable
     bands_dict = {}
 
     # parse all the bands and list them
@@ -244,11 +191,8 @@ def open_band_selection_window():
             row = 0
             column += 1
 
-    button_column_start = 0
-    button_row_start = 0
-
     import_button = Button(master=control_frame, text="Import Personal Running Order Selection",
-                           command=lambda: import_selection(bands_dict))
+                           command=lambda: import_selection(lineup, bands_dict))
     import_button.grid(row=0, column=0)
 
     export_button = Button(master=control_frame, text="Export Personal Running Order Selection",

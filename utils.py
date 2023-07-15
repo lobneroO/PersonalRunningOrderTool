@@ -19,8 +19,9 @@ import copy
 import datetime
 import os
 
-from tkinter import filedialog
 from tkinter import END
+from tkinter import filedialog
+from tkinter import messagebox
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -92,6 +93,58 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
 
     print(filename)
     return filename
+
+
+def clear_selection(bands_selection):
+    for band in bands_selection:
+        bands_selection[band].set(0)
+
+
+def import_selection(lineup, bands_selection):
+    # first get the file to read the selected bands
+    file_types = (("Personal Running Order text file", "*.prot*"), ("Text files", "*.txt*"), ("All files", "*.*"))
+    filepath = browse_files(file_types)
+    f = open(filepath, "r")
+
+    # the bands are comma separated in just one line
+    line = f.read()
+    bands = line.split(",")
+
+    # check if any of the bands don't exist. if so, this is an illegal file and the user should be made aware
+    bands_to_remove = []
+    for band in bands:
+        if not lineup.contains_band(band):
+            err_msg = 'There are some bands in your selection, which are not present in the line up!'
+            messagebox.showerror('Selection error', err_msg)
+            bands_to_remove.append(band)
+
+    # remove illegal bands
+    for band in bands_to_remove:
+        bands.remove(band)
+
+    for band in bands:
+        bands_selection[band].set(1)
+
+
+# TODO: what about bands / events that take place twice but on different days?
+def export_selection(bands_selection):
+    selected_bands = []
+    for band in bands_selection:
+        checkbox = bands_selection[band]
+        if checkbox.get() == 1:
+            selected_bands.append(band)
+
+    filetypes = (("Personal Running Order text file", "*.prot*"), ("Text file", "*.txt*"))
+    filename = save_file_as_browser(filetypes)
+
+    # write list of selected bands to simple text file, separated only by comma
+    f = open(filename, "w")
+    i = 0
+    for band in selected_bands:
+        f.write(band)
+        if i < len(selected_bands) - 1:
+            f.write(',')
+        i += 1
 
 
 def get_time_clashing_bands(selection, lineup):
