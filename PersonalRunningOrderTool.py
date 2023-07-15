@@ -14,104 +14,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
+
 import datetime
-import enum
-import string
-from dataclasses import dataclass
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
+
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
 
-# TODO: debug, delete
+from classes import Band
+from classes import LineUp
+from classes import Settings
+from classes import Stage
+
+
+from utils import get_timeless_date
+from utils import save_file_as_browser
+
 import os
-
-
-@dataclass
-class Band:
-    """ Class for the bands that will play with their start and end date and time,
-    stage they will play on, as well as name """
-    name: string
-    stage: enum
-    start: datetime
-    end: datetime
-
-
-@dataclass
-class LineUp:
-    """ The entire line up """
-    # TODO: currently bands are listed twice, stages is only convenience. clean this up
-    stages: list[string]
-    dates: dict[datetime, list[string]]
-    bands: list[Band]
-
-    def contains_band(self, band_name) -> bool:
-        for band in self.bands:
-            if band.name == band_name:
-                return True
-
-        return False
-
-    def get_full_info(self, band_name) -> Band:
-        for band in self.bands:
-            if band.name == band_name:
-                return band
-
-        return None
-
-
-@dataclass
-class Settings:
-    save_as_image: int = 0
-    save_as_pdf: int = 1
-    dpi: int = 200
-
-
-@dataclass
-class Stage:
-
-    def __init__(self, name):
-        self.name = name
-        self.checkbox = Checkbutton()
-        self.isEnabled = IntVar(value=1)
-
-    def create_selection_gui(self, parent):
-        row = parent.grid_size()[1]
-        tk_name = self.name.replace(".", "").replace(" ", "")
-        self.checkbox = Checkbutton(master=parent, onvalue=1, offvalue=0, variable=self.isEnabled,
-                                    name="checkbox"+tk_name)
-        self.checkbox.grid(row=row, column=0)
-        self.checkbox.select()
-        self.label = Label(master=parent, text=self.name, name="label"+tk_name)
-        self.label.grid(row=row, column=1)
-
-    def is_enabled(self) -> bool:
-        try:
-            return self.isEnabled.get() == 1
-        except:
-            print("fuck")
-
-    # TODO: enable ordering
-    checkbox: Checkbutton = None
-    label: Label = None
-    isEnabled: IntVar = None
-    name: string = ""
 
 
 # The main window
 window = Tk()
-
-
-def get_timeless_date(dt) -> datetime:
-    # make a copy of the date, so as to not overwrite the original info
-    new_dt = copy.deepcopy(dt)
-    new_dt = new_dt.replace(hour=0)
-    new_dt = new_dt.replace(minute=0)
-
-    return new_dt
 
 
 def add_stages_to_gui(stage_names):
@@ -396,41 +323,6 @@ def print_running_order(bands_dict=None):
             pdf.savefig(fig)
 
         pdf.close()
-
-
-def save_file_as_browser(filetypes=(("All files", "*.*"),)):
-    filename = filedialog.asksaveasfilename(initialdir=os.getcwd(),
-                                            title="Select path and name for the file to be saved to",
-                                            filetypes=filetypes)
-
-    ext = os.path.splitext(filename)
-    if not ext.__contains__('.'):
-        # the user didn't enter an extension. add one here (unless *.* is allowed)
-        # there seems to be no way to query the last selected extension in the file browser
-        # therefore just add the default extension (i.e. the first one in filetypes)
-
-        is_empty_allowed = False
-        for filetype in filetypes:
-            if filetype[1] == "*.*":
-                is_empty_allowed = True
-                break
-
-        if not is_empty_allowed:
-            filename += filetypes[0][1].removesuffix('*').removeprefix('*')
-    else:
-        # check if the extension is a "legal" one (i.e. contained in filetypes)
-        is_legal = False
-        for filetype in filetypes:
-            if ext in filetype[1] or filetype[1] == "*.*":
-                is_legal = True
-                break
-
-        if not is_legal:
-            # not a legal filetype, default to the default
-            filename += filetypes[0][1].removesuffix('*').removeprefix('*')
-
-    print(filename)
-    return filename
 
 
 def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
