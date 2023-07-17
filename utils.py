@@ -236,9 +236,9 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
         # disable the plot's axes, they will be added in subplots
         plt.axis('off')
 
-        # TODO: maybe try to hardcode time stamps to get the wrapping at 24/0 o'clock right
-        hours = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
-                 "19:00", "20:00", "21:00", "22:00", "23:00", "0:00", "1:00", "2:00", "3:00", "4:00"]
+        hours = ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "0:00", "2:00"]
+        hour_numbers = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
+                        "19:00", "20:00", "21:00", "22:00", "23:00", "24:00", "25:00", "26:00", "27:00", "28:00"]
 
         # for readability of the resulting plot, offset the x position by 0.5
         x_offset_axis = 0.5
@@ -250,19 +250,19 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
         # it will be read downwards, therefore invert the time labels on the axis
         axis_bl.set_ylim(27.3, 10.9)
         axis_bl.set_xticks(range(1, len(stage_names) + 1))
-        axis_bl.set_xticklabels(stage_names)
+        axis_bl.set_xticklabels(stage_names, rotation=30)
         axis_bl.set_ylabel('Time')
         # axis_bl.set_yticks(range(1, len(hours) + 1))
-        # axis_bl.set_yticklabels(hours)
+        axis_bl.set_yticklabels(hours)
 
         axis_ur = axis_bl.twiny().twinx()
         axis_ur.set_xlim(axis_bl.get_xlim())
         axis_ur.set_ylim(axis_bl.get_ylim())
         axis_ur.set_xticks(axis_bl.get_xticks())
-        axis_ur.set_xticklabels(stage_names)
+        axis_ur.set_xticklabels(stage_names, rotation=30)
         axis_ur.set_ylabel('Time')
         # axis_ur.set_yticks(axis_bl.get_yticks())
-        # axis_ur.set_yticklabels(axis_bl.get_yticklabels())
+        axis_ur.set_yticklabels(axis_bl.get_yticklabels())
 
         # add all the band plots
         for band in lineup.dates[day]:
