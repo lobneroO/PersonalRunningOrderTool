@@ -139,6 +139,7 @@ def open_band_selection_window():
     selection_window = Toplevel(window)
     selection_window.title("Band selection for Personal Running Order")
     selection_window.wm_attributes('-topmost', 1)
+    selection_window.protocol("WM_DELETE_WINDOW", lambda: selection_window.destroy())
 
     global lineup
     global settings
@@ -214,6 +215,7 @@ def open_settings_window():
     settings_window = Toplevel(window)
     settings_window.title("Settings for Personal Running Order")
     settings_window.wm_attributes('-topmost', 1)
+    settings_window.protocol("WM_DELETE_WINDOW", lambda: settings_window.destroy())
 
     image_is_checked = IntVar()
     image_is_checked.set(settings.save_as_image)
