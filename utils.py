@@ -224,7 +224,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
 
     stage_names = lineup.stages
     for stage in stages:
-        if not stage.is_enabled():
+        if not stage.is_enabled() and stage.name in stage_names:
             stage_names.remove(stage.name)
     print(stage_names)
     figures = []
@@ -332,7 +332,9 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
 
     # print it all as one pdf
     if settings.save_as_pdf:
-        pdf = backend_pdf.PdfPages(save_path + '.pdf')
+        if not save_path.endswith('.pdf'):
+            save_path += '.pdf'
+        pdf = backend_pdf.PdfPages(save_path)
         for fig in figures:
             pdf.savefig(fig)
 
