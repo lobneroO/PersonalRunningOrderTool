@@ -165,7 +165,7 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
 - _The time axes (y axes) exceeds 24_
 
   Sorry about that. This is more or less my first python script, and I did this in a weekend. I do not know how to fix that yet.
-  * This will be "fixed" in verison 0.4, where I hardcoded the labels. *
+  * This will be "fixed" in version 0.4, where I hardcoded the labels. *
 - _The time axes (y axes) is fixed_
 
   In a future version, I will base this on the times given in the line-up .csv file. 
@@ -178,6 +178,7 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
   This seems to be a Tkinter problem, which is the GUI Framework used for PRO.
   The program does not use horrific amounts of system resources, so I will not prioritize this highly for now.
   You should be able to close the program with chosen task manager, if it hasn't closed automatically.
+  * This will be fixed in version 0.4. *
 
 # Building the project
 The project releases are created with PyInstaller on Arch Linux and through Wine on Windows.
