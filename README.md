@@ -165,6 +165,7 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
 - _The time axes (y axes) exceeds 24_
 
   Sorry about that. This is more or less my first python script, and I did this in a weekend. I do not know how to fix that yet.
+  * This will be "fixed" in verison 0.4, where I hardcoded the labels. *
 - _The time axes (y axes) is fixed_
 
   In a future version, I will base this on the times given in the line-up .csv file. 
