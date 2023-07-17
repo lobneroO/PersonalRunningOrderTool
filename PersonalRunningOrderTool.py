@@ -253,14 +253,21 @@ def open_settings_window():
     band_name_size_label = Label(master=settings_window, text="Font size of band name in rectangles")
     band_name_size_label.grid(row=4, column=1)
 
+    stage_name_size = StringVar(settings_window)
+    stage_name_size.set(settings.stage_name_font_size)
+    stage_name_size_entry = Entry(master=settings_window, textvariable=stage_name_size)
+    stage_name_size_entry.grid(row=5, column=0)
+    stage_name_size_label = Label(master=settings_window, text="Font size of stage names on x axis")
+    stage_name_size_label.grid(row=5, column=1)
+
     save_button = Button(master=settings_window, text="Apply Settings",
                          command=lambda: save_settings(
                              settings, settings_window, image_is_checked, pdf_is_checked, dpi,
-                             band_time_size, band_name_size))
-    save_button.grid(row=5, column=0)
+                             band_time_size, band_name_size, stage_name_size))
+    save_button.grid(row=6, column=0)
 
     cancel_button = Button(master=settings_window, text="Discard Changes", command=lambda: settings_window.destroy())
-    cancel_button.grid(row=5, column=1)
+    cancel_button.grid(row=6, column=1)
 
 
 def setup_gui():

@@ -62,7 +62,7 @@ class Settings:
     dpi: int = 200
     band_time_font_size: int = 7
     band_name_font_size: int = 9
-    stage_name_font_size: int = 9
+    stage_name_font_size: int = 10
 
 
 @dataclass

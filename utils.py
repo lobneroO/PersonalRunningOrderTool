@@ -50,15 +50,13 @@ def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
 
 
 def save_settings(settings, settings_window, is_image, is_pdf, dpi,
-                  band_time_size, band_name_size):
+                  band_time_size, band_name_size, stage_name_size):
     settings.save_as_image = is_image.get()
     settings.save_as_pdf = is_pdf.get()
     settings.dpi = int(dpi.get())
     settings.band_time_font_size = int(band_time_size.get())
     settings.band_name_font_size = int(band_name_size.get())
-    print(is_image.get())
-    print(is_pdf.get())
-    print(dpi.get())
+    settings.stage_name_font_size = int(stage_name_size.get())
 
     settings_window.destroy()
 
@@ -232,6 +230,9 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
     print(stage_names)
     figures = []
 
+    # set the stage name font size
+    plt.rc('xtick', labelsize=settings.stage_name_font_size)
+
     # loop all days, each day gets its own image
     for day in lineup.dates:
         # create the basic plot figure
@@ -342,3 +343,6 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
             pdf.savefig(fig)
 
         pdf.close()
+
+    # close the figures
+    plt.close('all')
