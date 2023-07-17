@@ -49,10 +49,13 @@ def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
     return filename
 
 
-def save_settings(settings, settings_window, is_image, is_pdf, dpi):
+def save_settings(settings, settings_window, is_image, is_pdf, dpi,
+                  band_time_size, band_name_size):
     settings.save_as_image = is_image.get()
     settings.save_as_pdf = is_pdf.get()
     settings.dpi = int(dpi.get())
+    settings.band_time_font_size = int(band_time_size.get())
+    settings.band_name_font_size = int(band_name_size.get())
     print(is_image.get())
     print(is_pdf.get())
     print(dpi.get())
@@ -302,7 +305,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
             # also the end time on the opposite corner (thus preventing it from writing over the start time)
             # first, just plot the time to get the size of it (and plot it somewhere where it can't be seen)
             t = plt.text(-10, -10, '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
-                          va='top', fontsize=time_font_size)
+                          va='top', fontsize=settings.band_time_font_size)
             bb = t.get_window_extent(renderer=fig.canvas.get_renderer()).transformed(
                 axis_bl.transData.inverted())
 
@@ -316,11 +319,11 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
 
             plt.text(x_coord, y_coord,
                      '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
-                     va='top', fontsize=time_font_size)
+                     va='top', fontsize=settings.band_time_font_size)
 
             # print the name of the band
             plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band.name, ha='center', va='center',
-                     fontsize=9)
+                     fontsize=settings.band_name_font_size)
 
         day_str = day.strftime("%d.%m.%Y")
         plt.title(day_str, y=1.07)

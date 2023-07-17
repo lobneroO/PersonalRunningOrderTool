@@ -60,6 +60,9 @@ class Settings:
     save_as_image: int = 0
     save_as_pdf: int = 1
     dpi: int = 200
+    band_time_font_size: int = 7
+    band_name_font_size: int = 9
+    stage_name_font_size: int = 9
 
 
 @dataclass
