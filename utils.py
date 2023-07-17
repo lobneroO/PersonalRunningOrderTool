@@ -236,9 +236,9 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
         # disable the plot's axes, they will be added in subplots
         plt.axis('off')
 
+        # this is a bit hacky, but it gives out the correct time stamps for the wacken 2023 example
+        # and should work as long as the y_lim is kept to 27.3 - 10.9
         hours = ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "0:00", "2:00"]
-        hour_numbers = ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00",
-                        "19:00", "20:00", "21:00", "22:00", "23:00", "24:00", "25:00", "26:00", "27:00", "28:00"]
 
         # for readability of the resulting plot, offset the x position by 0.5
         x_offset_axis = 0.5
@@ -252,16 +252,15 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
         axis_bl.set_xticks(range(1, len(stage_names) + 1))
         axis_bl.set_xticklabels(stage_names, rotation=30)
         axis_bl.set_ylabel('Time')
-        # axis_bl.set_yticks(range(1, len(hours) + 1))
         axis_bl.set_yticklabels(hours)
 
         axis_ur = axis_bl.twiny().twinx()
         axis_ur.set_xlim(axis_bl.get_xlim())
         axis_ur.set_ylim(axis_bl.get_ylim())
         axis_ur.set_xticks(axis_bl.get_xticks())
-        axis_ur.set_xticklabels(stage_names, rotation=30)
+        # TODO: rotation doesn't work here, for whatever reason
+        axis_ur.set_xticklabels(stage_names, rotation=-30)
         axis_ur.set_ylabel('Time')
-        # axis_ur.set_yticks(axis_bl.get_yticks())
         axis_ur.set_yticklabels(axis_bl.get_yticklabels())
 
         # add all the band plots
@@ -290,9 +289,8 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
             rectangle_width = 0.95
             # take into consideration the x_offset used for the x-axis
             x_offset = x_offset_axis + (1 - rectangle_width) * 0.5
-            band_rectangle = patches.Rectangle([stage_names.index(stage) + x_offset, start], rectangle_width, end - start,
-                                               color=col,  # colors[int(band.start.time().hour % len(colors))],
-                                               linewidth=0.5)
+            band_rectangle = patches.Rectangle([stage_names.index(stage) + x_offset, start], rectangle_width,
+                                               end - start, color=col, linewidth=0.5)
             axis_bl.add_patch(band_rectangle)
 
             # print the actual start time to make it legible
