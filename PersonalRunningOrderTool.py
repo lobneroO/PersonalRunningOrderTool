@@ -19,6 +19,7 @@ import datetime
 
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 
 from classes import Band
 from classes import LineUp
@@ -31,6 +32,8 @@ from utils import export_selection
 from utils import import_selection
 from utils import print_running_order
 from utils import save_settings
+
+from tkintertable import TableCanvas, TableModel
 
 
 # The main window
@@ -133,6 +136,66 @@ def execute_parsing(file_path, buttons_to_activate):
 
         # add the stages to the main window for en-/disabling and sorting
         add_stages_to_gui(lineup.stages)
+
+
+def read_back_table_data(table: TableCanvas):
+    global band_alias_dict
+    data = table.model.data
+
+    print(data)
+
+    # empty the band alias dict and refill it
+    band_alias_dict.clear()
+    rows = table.model.getRowCount()
+    columns = table.model.getColumnCount()
+    for row in range(rows):
+        # for some reason, tkintertables adds from base 1
+        key = row+1
+        band_alias_dict[data[key]['Band name']] = data[key]['Band alias']
+
+    print(band_alias_dict)
+
+
+def open_band_alias_window():
+    alias_window = Toplevel(window)
+    alias_window.title("Aliasing bands for the print")
+    alias_window.wm_attributes('-topmost', 1)
+    alias_window.protocol("WM_DELETE_WINDOW", lambda: alias_window.destroy())
+
+    global band_alias_dict
+
+    # add two frames, one for the table (with header)
+    # and one for the controls to the side
+    table_frame = Frame(alias_window)
+    table_frame.grid(row=0, column=0)
+    control_frame = Frame(alias_window)
+    control_frame.grid(row=0, column=1)
+
+    # TODO: debug, delete
+    band_alias_dict["Heaven Shall Burn"] = "HSB"
+    band_alias_dict["Killswitch Engage"] = "Killswitch"
+
+    # for tkintertables to work correctly, these have to be 1 based, not 0 based
+    data = {1: {'Band name': 'Heaven Shall Burn', 'Band alias': 'HSB'},
+            2: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
+
+    # define tree early for the button interaction
+    # tree = ttk.Treeview(table_frame, column=("Band name", "Band alias"), show='headings', height=len(band_alias_dict))
+    table = TableCanvas(table_frame, data=data) #, read_only=False)
+    #table.sortTable(columnIndex=0)
+    table.show()
+
+    # set up the controls
+    plus_button = Button(master=control_frame, text="+",
+                         command=lambda: table.addRow())
+    plus_button.grid(row=0, column=0)
+    minus_button = Button(master=control_frame, text="-")
+    minus_button.grid(row=0, column=1)
+
+    save_button = Button(master=control_frame, text="Save alias settings", command=lambda: read_back_table_data(table))
+    save_button.grid(row=1, column=0)
+    cancel_button = Button(master=control_frame, text="Cancel")
+    cancel_button.grid(row=1, column=1)
 
 
 def open_band_selection_window():
@@ -302,6 +365,10 @@ def setup_gui():
                                                            create_personal_running_order_button]))
     parse_button.grid(row=1, column=3)
 
+    alias_button = Button(master=window, text="alias band names",
+                          command=lambda: open_band_alias_window())
+    alias_button.grid(row=2, column=3)
+
     settings_button = Button(master=window, text="Settings", command=lambda: open_settings_window())
     settings_button.grid(row=3, column=3)
 
@@ -312,6 +379,8 @@ lineup = None
 stages = None
 # settings should also be globally accessible
 settings = Settings
+# allow band aliases for better printing if the names are too long
+band_alias_dict = dict()
 setup_gui()
 window.wm_attributes('-topmost', 1)
 window.mainloop()

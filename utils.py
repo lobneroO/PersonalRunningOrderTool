@@ -200,7 +200,7 @@ def get_time_clashing_bands(selection, lineup):
     return clashing_bands
 
 
-def print_running_order(lineup, settings, stages, bands_dict=None):
+def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_list=None):
     # TODO: make this alternating for a stage
     colors = ['lightgray', 'darkgray']
 
@@ -263,7 +263,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
         axis_ur.set_ylim(axis_bl.get_ylim())
         axis_ur.set_xticks(axis_bl.get_xticks())
         # TODO: rotation doesn't work here, for whatever reason
-        axis_ur.set_xticklabels(stage_names, rotation=-30)
+        axis_ur.set_xticklabels(axis_bl.get_xticklabels())
         axis_ur.set_ylabel('Time')
         axis_ur.set_yticklabels(axis_bl.get_yticklabels())
 
@@ -323,7 +323,12 @@ def print_running_order(lineup, settings, stages, bands_dict=None):
                      va='top', fontsize=settings.band_time_font_size)
 
             # print the name of the band
-            plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band.name, ha='center', va='center',
+            band_name = band.name
+            if band.name in band_alias_list:
+                # if the user chooses to alias a band name, e.g. for brevity
+                # then replace it here in the print only (e.g. not in the band selection window)
+                band_name = band_alias_list[band_name]
+            plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band_name, ha='center', va='center',
                      fontsize=settings.band_name_font_size)
 
         day_str = day.strftime("%d.%m.%Y")

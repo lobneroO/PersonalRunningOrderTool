@@ -25,11 +25,13 @@ from tkinter import IntVar
 @dataclass
 class Band:
     """ Class for the bands that will play with their start and end date and time,
-    stage they will play on, as well as name """
+    stage they will play on, as well as name.
+    Additional alias that can be used in the print only, e.g. if it is too long for a box."""
     name: string
     stage: enum
     start: datetime
     end: datetime
+    alias: string
 
 
 @dataclass
