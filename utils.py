@@ -23,7 +23,7 @@ from tkinter import END
 from tkinter import filedialog
 from tkinter import messagebox
 
-from tkintertable import TableCanvas, TableModel
+from custom_table import CustomTable
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -98,7 +98,7 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
     return filename
 
 
-def get_alias_table_data(table: TableCanvas):
+def get_alias_table_data(table: CustomTable):
     alias_dict = {}
     data = table.model.data
 
@@ -116,7 +116,7 @@ def get_alias_table_data(table: TableCanvas):
     return alias_dict
 
 
-def import_alias_settings(table: TableCanvas):
+def import_alias_settings(table: CustomTable):
     file_types=(("PRO Alias Files", "*.paf"),("All files", "*.*"))
 
     # first get the file to read the aliased names
@@ -126,7 +126,7 @@ def import_alias_settings(table: TableCanvas):
     table.importCSV(file_path, sep=',')
 
 
-def export_alias_settings(table: TableCanvas):
+def export_alias_settings(table: CustomTable):
     file_types=(("PRO Alias Files", "*.paf"), ("All files", "*.*"))
     file_path = save_file_as_browser(file_types)
 

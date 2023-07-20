@@ -35,7 +35,7 @@ from utils import get_alias_table_data
 from utils import import_alias_settings
 from utils import export_alias_settings
 
-from tkintertable import TableCanvas, TableModel
+from custom_table import CustomTable
 
 
 # The main window
@@ -140,14 +140,14 @@ def execute_parsing(file_path, buttons_to_activate):
         add_stages_to_gui(lineup.stages)
 
 
-def read_back_table_data(table: TableCanvas):
+def read_back_table_data(table: CustomTable):
     global band_alias_dict
     band_alias_dict = get_alias_table_data()
 
     print(band_alias_dict)
 
 
-def remove_table_line(table: TableCanvas):
+def remove_table_line(table: CustomTable):
     table.deleteRow()
     # TODO: reset the keys (row numbers):
     #       say record data is {1: {'key1': 'val1', 'key2': 'val2'}, 2: {'key1': 'val3', 'key2': 'val4}}
@@ -156,13 +156,24 @@ def remove_table_line(table: TableCanvas):
     #       and the row's key is not updated
     #       if now you add a row, tkintertable will try to add key 2, since it has seen only one key
     #       and 2 is the logical follow up m(
+    data = table.model.data
+
+    row_num = 1
+    corrected_data = {}
+    for key, value in data.items():
+        corrected_data[row_num] = value
+        row_num += 1
+
+    table.model.data = {}
+    table.model.importDict(corrected_data)
+
     table.redraw()
 
     data = get_alias_table_data(table)
     print(data)
 
 
-def add_table_line(table: TableCanvas):
+def add_table_line(table: CustomTable):
     table.addRow()
     table.redraw()
 
@@ -194,8 +205,11 @@ def open_band_alias_window():
             2: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
 
     # define tree early for the button interaction
-    table = TableCanvas(table_frame, data=data)
+    table = CustomTable(table_frame, data=data)
     table.show()
+    # these do jack shit
+    table.autoResizeColumns()
+    table.adjustColumnWidths()
 
     # set up the controls
     plus_button = Button(master=control_frame, text="+",
