@@ -19,7 +19,6 @@ import datetime
 
 from tkinter import *
 from tkinter import messagebox
-from tkinter import ttk
 
 from classes import Band
 from classes import LineUp
@@ -32,6 +31,9 @@ from utils import export_selection
 from utils import import_selection
 from utils import print_running_order
 from utils import save_settings
+from utils import get_alias_table_data
+from utils import import_alias_settings
+from utils import export_alias_settings
 
 from tkintertable import TableCanvas, TableModel
 
@@ -140,20 +142,32 @@ def execute_parsing(file_path, buttons_to_activate):
 
 def read_back_table_data(table: TableCanvas):
     global band_alias_dict
-    data = table.model.data
-
-    print(data)
-
-    # empty the band alias dict and refill it
-    band_alias_dict.clear()
-    rows = table.model.getRowCount()
-    columns = table.model.getColumnCount()
-    for row in range(rows):
-        # for some reason, tkintertables adds from base 1
-        key = row+1
-        band_alias_dict[data[key]['Band name']] = data[key]['Band alias']
+    band_alias_dict = get_alias_table_data()
 
     print(band_alias_dict)
+
+
+def remove_table_line(table: TableCanvas):
+    table.deleteRow()
+    # TODO: reset the keys (row numbers):
+    #       say record data is {1: {'key1': 'val1', 'key2': 'val2'}, 2: {'key1': 'val3', 'key2': 'val4}}
+    #       and you delete row with key 1
+    #       then the remaining data is {2: {'key1': 'val3', 'key2': 'val4}}
+    #       and the row's key is not updated
+    #       if now you add a row, tkintertable will try to add key 2, since it has seen only one key
+    #       and 2 is the logical follow up m(
+    table.redraw()
+
+    data = get_alias_table_data(table)
+    print(data)
+
+
+def add_table_line(table: TableCanvas):
+    table.addRow()
+    table.redraw()
+
+    data = get_alias_table_data(table)
+    print(data)
 
 
 def open_band_alias_window():
@@ -180,22 +194,29 @@ def open_band_alias_window():
             2: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
 
     # define tree early for the button interaction
-    # tree = ttk.Treeview(table_frame, column=("Band name", "Band alias"), show='headings', height=len(band_alias_dict))
-    table = TableCanvas(table_frame, data=data) #, read_only=False)
-    #table.sortTable(columnIndex=0)
+    table = TableCanvas(table_frame, data=data)
     table.show()
 
     # set up the controls
     plus_button = Button(master=control_frame, text="+",
-                         command=lambda: table.addRow())
+                         command=lambda: add_table_line(table))
     plus_button.grid(row=0, column=0)
-    minus_button = Button(master=control_frame, text="-")
+    minus_button = Button(master=control_frame, text="-",
+                          command=lambda: remove_table_line(table))
     minus_button.grid(row=0, column=1)
 
-    save_button = Button(master=control_frame, text="Save alias settings", command=lambda: read_back_table_data(table))
-    save_button.grid(row=1, column=0)
+    use_button = Button(master=control_frame, text="Use alias settings",
+                        command=lambda: read_back_table_data(table))
+    use_button.grid(row=1, column=0)
     cancel_button = Button(master=control_frame, text="Cancel")
     cancel_button.grid(row=1, column=1)
+
+    import_button = Button(master=control_frame, text="Import alias settings",
+                           command=lambda: import_alias_settings(table))
+    import_button.grid(row=2, column=0)
+    export_button = Button(master=control_frame, text="Export alias settings",
+                           command=lambda: export_alias_settings(table))
+    export_button.grid(row=2, column=1)
 
 
 def open_band_selection_window():

@@ -23,6 +23,8 @@ from tkinter import END
 from tkinter import filedialog
 from tkinter import messagebox
 
+from tkintertable import TableCanvas, TableModel
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
@@ -94,6 +96,59 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
 
     print(filename)
     return filename
+
+
+def get_alias_table_data(table: TableCanvas):
+    alias_dict = {}
+    data = table.model.data
+
+    print(data)
+
+    # empty the band alias dict and refill it
+    rows = table.model.getRowCount()
+    for row in range(rows):
+        # for some reason, tkintertables adds from base 1
+        key = row+1
+        if key in data:
+            if 'Band alias' in data[key] and 'Band name' in data[key]:
+                alias_dict[data[key]['Band name']] = data[key]['Band alias']
+
+    return alias_dict
+
+
+def import_alias_settings(table: TableCanvas):
+    file_types=(("PRO Alias Files", "*.paf"),("All files", "*.*"))
+
+    # first get the file to read the aliased names
+    file_path = browse_files(file_types)
+
+    table.clearData()
+    table.importCSV(file_path, sep=',')
+
+
+def export_alias_settings(table: TableCanvas):
+    file_types=(("PRO Alias Files", "*.paf"), ("All files", "*.*"))
+    file_path = save_file_as_browser(file_types)
+
+    # don't use the tables export function, as it will only write to a csv file,
+    # but won't allow for custom extension setting
+
+    data = get_alias_table_data(table)
+
+    f = open(file_path, "w")
+    i = 0
+
+    # write the column headers, otherwise the import won't work
+    f.write('Band name,Band alias\n')
+
+    # write list of aliases to simple "csv" file, one line per band and alias
+    for band_name, band_alias in data.items():
+        f.write(band_name)
+        f.write(',')
+        f.write(band_alias)
+        if i < len(data) - 1:
+            f.write('\n')
+        i += 1
 
 
 def clear_selection(bands_selection):
