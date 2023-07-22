@@ -8,6 +8,7 @@
   * [The GUI](#the-gui)
     + [Main window](#main-window)
     + [Settings window](#settings-window)
+    + [alias_band_names_window](#alias-band-names-window)
     + [Band selection for Personal Running Order window](#band-selection-for-personal-running-order-window)
 - [What problems may occur](#what-problems-may-occur)
 - [Building the project](#building-the-project)
@@ -83,11 +84,19 @@ If you want to change your selection, you would have to import your earlier expo
 ### Main window
 Upon start, this window should greet you:
 
-![image](https://user-images.githubusercontent.com/17877050/180657843-a844c1c8-e046-4ac9-a2d6-605a4cd10064.png)
+![image](https://github.com/lobneroO/PersonalRunningOrderTool/assets/17877050/b6ba8cf6-88b8-4baa-a887-79568b8ab5a8)
+
 
 You can either enter a path to a .csv file with the line-up manually into the text box on the left, or you can browse to it with a file browser by clicking the "..." button.
 Once you have chosen a file, click "parse file" in order to load it into PRO.
 If your line-up file was correctly parsed, the two buttons "Create Complete Running Order" and "Create Personal Running Order" will activate, and you can now click them.
+Furthermore, a list of stages will appear that you can individually select or deselect. 
+Only selected stages will be printed to your running order files.
+This way, if you won't need a stage, you can deselect it and get more space for all other stages.
+![image](https://github.com/lobneroO/PersonalRunningOrderTool/assets/17877050/d5f1d27f-7674-412c-a558-82378de3a5f0)
+
+
+
 
 "Create Complete Running Order" will open a file browser for your output .pdf file. You can choose any destination and name you want, as long as you have writing rights in the chosen directory.
 Once a path was chosen, it will start to render the timetable and write it out. At the moment, there will be no success message (nor failure, for that matter). 
@@ -101,7 +110,7 @@ Per default, the directory of the program is selected, so if you are unsure wher
 ### Settings window
 The settings window will let you make a few settings.
 
-![image](https://user-images.githubusercontent.com/17877050/181109267-033b6d36-024f-4446-a74c-30642f48137c.png)
+![image](https://github.com/lobneroO/PersonalRunningOrderTool/assets/17877050/2ff4f5d8-478b-4322-be88-6b9f25dfc5a7)
 
 
 First, you can choose how to save your running order - either as a .pdf or as several .png files (or both).
@@ -111,16 +120,29 @@ A filebrowser will open, and you can choose a path and name, however since you e
 
 The default settings are to save the .pdf file only.
 
-Lastly, you can choose the dpi resolution used for the plots (i.e. the images / pdf).
+You can choose the dpi resolution used for the plots (i.e. the images / pdf).
 The default size of the image / pdf will be A4 with a 200dpi resolution, which should suffice.
 If you plan to print this as a bigger file (say A3), you may want to increase the dpi to still get a feasible quality.
+
+You also have font size choices for band start and end times, band names and stage names.
 
 The "Apply Settings" will apply your chosen settings and close the settings window.
 The "Discard Changes" button will discard any changes you made and close the settings window.
 
-The default is a settings of 200 dpi.
+The default is a setting of 200 dpi, font size 7 for times, font size 9 for bands and font size 10 for stages.
 
 Settings will not be saved after closing the program yet. If you make changes and restart the program, you will have to make the same changes again.
+
+### alias band names window
+"alias band names" offers the ability to change names from how they are written in the input file to something you'd like.
+This is useful mostly when bands have long names that don't fit their printed boxes.
+E.g. you can shorten "Heaven Shall Burn" to "HSB" here without having to edit the input file.
+The aliasing will not take effect in the band selection window, but only in the printed output.
+
+![image](https://github.com/lobneroO/PersonalRunningOrderTool/assets/17877050/2c78d3c7-3c16-44aa-96ee-98b63a547edd)
+
+The aliasing settings can be exported and reused (even on other festivals), such that you can create a personal database
+and reuse it everytime.
 
 ### Band selection for Personal Running Order window
 This window contains in a grid all the bands of the line-up in alphabetical order. 
@@ -150,23 +172,12 @@ It will open a file browser where you can enter a file name and choose a path fo
 # What problems may occur
 While the basic functionality of PRO can give you a very helpful timetable, there are a few limitations and problems.
 
-- _You have a band / event that plays / happens on multiple days_
-
-  On Summer-Breeze, the Disco happens every evening. This is not a problem for the general timetable, if they occur multiple times in the .csv file, each with their own date.
-  However, the selection would export this like "...,Disco,Disco,Disco,..." if you select it everytime. 
-  When importing, there is currently no way of distinguishing these. Even if you select them without exporting / importing and then save your running order to file, it won't work, as all occurrences will be selected.
-  * This will be fixed in version 0.4, as long as every artist occurs only once per day *
-  You can work around this, by giving each time this band plays / event happens, the band a unique name (e.g. "Disco (Wed)" and "Disco (Thu)") in the line up .csv file.
 - _The time stamps in the timetable are writing over the band's name_
 
   With very short slots, there is very little place to put the stamps. 
   Currently, no check for space is implemented, thus the name and time stamps will write into their positions every time.
-  If you need a workaround, shorten the band name in your line-up .csv file
+  If you need a workaround, shorten the band names in the "alias band names" settings.
   (e.g. "Fleshgod Apocalypse" can become "Fleshgod" or simply "FA").
-- _The time axes (y axes) exceeds 24_
-
-  Sorry about that. This is more or less my first python script, and I did this in a weekend. I do not know how to fix that yet.
-  * This will be "fixed" in version 0.4, where I hardcoded the labels. *
 - _The time axes (y axes) is fixed_
 
   In a future version, I will base this on the times given in the line-up .csv file. 
@@ -174,12 +185,7 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
-- _The program does not exit when I close the main window_
 
-  This seems to be a Tkinter problem, which is the GUI Framework used for PRO.
-  The program does not use horrific amounts of system resources, so I will not prioritize this highly for now.
-  You should be able to close the program with chosen task manager, if it hasn't closed automatically.
-  * This will be fixed in version 0.4. *
 
 # Building the project
 The project releases are created with PyInstaller on Arch Linux and through Wine on Windows.
