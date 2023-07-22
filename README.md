@@ -155,6 +155,7 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
   On Summer-Breeze, the Disco happens every evening. This is not a problem for the general timetable, if they occur multiple times in the .csv file, each with their own date.
   However, the selection would export this like "...,Disco,Disco,Disco,..." if you select it everytime. 
   When importing, there is currently no way of distinguishing these. Even if you select them without exporting / importing and then save your running order to file, it won't work, as all occurrences will be selected.
+  * This will be fixed in version 0.4, as long as every artist occurs only once per day *
   You can work around this, by giving each time this band plays / event happens, the band a unique name (e.g. "Disco (Wed)" and "Disco (Thu)") in the line up .csv file.
 - _The time stamps in the timetable are writing over the band's name_
 

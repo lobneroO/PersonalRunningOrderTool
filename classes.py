@@ -32,6 +32,17 @@ class Band:
     start: datetime
     end: datetime
 
+    def __hash__(self):
+        return hash((self.name, self.start))
+
+    def __eq__(self, other):
+        return self.name == other.name and self.stage == other.stage and self.start == other.start and self.end == other.end
+
+    def __lt__(self, other):
+        if self.name.lower() == other.name.lower():
+            return self.start < other.start
+        return self.name.lower() < other.name.lower()
+
 
 @dataclass
 class LineUp:
@@ -48,9 +59,16 @@ class LineUp:
 
         return False
 
-    def get_full_info(self, band_name) -> Band:
+    def get_full_info(self, band_name: str) -> Band:
         for band in self.bands:
             if band.name == band_name:
+                return band
+
+        return None
+
+    def get_full_info(self, band_name: str, start: datetime) -> Band:
+        for band in self.bands:
+            if band.name == band_name and band.start == start:
                 return band
 
         return None

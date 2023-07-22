@@ -17,6 +17,7 @@
 
 import copy
 import datetime
+from datetime import datetime   # needed for access to strptime
 import os
 
 from tkinter import END
@@ -29,6 +30,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
 
+from classes import LineUp
+
 
 def get_timeless_date(dt) -> datetime:
     # make a copy of the date, so as to not overwrite the original info
@@ -37,6 +40,10 @@ def get_timeless_date(dt) -> datetime:
     new_dt = new_dt.replace(minute=0)
 
     return new_dt
+
+
+def get_day_str(date: datetime) -> str:
+    return date.strftime('%a')
 
 
 def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
@@ -186,6 +193,41 @@ def export_alias_settings(table: CustomTable):
         i += 1
 
 
+def get_multi_bands(lineup: LineUp) -> dict:
+    # create a dictionary of all bands that present multiple times
+    # with their name as key and all the times as value
+    out = {}
+    for i in range(len(lineup.bands)):
+        band_i = lineup.bands[i]
+        # case 1: band_i.name is no in out
+        #           in that case, find all occurrences and add them to out
+        # case 2: band_i.name is already in out
+        #           in that case, all occurrences have been found
+
+        if band_i.name in out:
+            continue
+
+        # band_i is not in list yet, therefore add all occurrences
+        # it is safe to assume, that all occurrences come _after_ the current one
+        out[band_i.name] = [band_i]
+        for j in range(i+1, len(lineup.bands)):
+            band_j = lineup.bands[j]
+
+            if band_i.name == band_j.name:
+                out[band_i.name].append([band_j])
+
+    # now remove all entries with just one time
+    bands_to_remove = []
+    for name, band_list in out.items():
+        if len(band_list) == 1:
+            bands_to_remove.append(name)
+
+    for name in bands_to_remove:
+        del out[name]
+
+    return out
+
+
 def clear_selection(bands_selection):
     for band in bands_selection:
         bands_selection[band].set(0)
@@ -197,28 +239,38 @@ def import_selection(lineup, bands_selection):
     filepath = browse_files(file_types)
     f = open(filepath, "r")
 
-    # the bands are comma separated in just one line
-    line = f.read()
-    bands = line.split(",")
+    # the bands are one line each with the data and time comma separated as the next values
+    selection = []
+    for line in f:
+        split = line.split(",")
+        band_name = split[0]
+        date = split[1] + ' ' + split[2].removesuffix('\n')
+        date_time = datetime.strptime(date, "%x %X")
+
+        selection.append((band_name, date_time))
 
     # check if any of the bands don't exist. if so, this is an illegal file and the user should be made aware
     bands_to_remove = []
-    for band in bands:
-        if not lineup.contains_band(band):
+    for band in selection:
+        if not lineup.contains_band(band[0]):
             err_msg = 'There are some bands in your selection, which are not present in the line up!'
             messagebox.showerror('Selection error', err_msg)
             bands_to_remove.append(band)
 
     # remove illegal bands
     for band in bands_to_remove:
-        bands.remove(band)
+        selection.remove(band)
 
-    for band in bands:
-        bands_selection[band].set(1)
+    for band in selection:
+        # the band in selection is read out of the file, i.e. it  is only a tuple containing name and start date
+        # but the bands in the band_selection are from the full line up, therefore these don't match.
+        # get the correct line-up band first and then set the checkbox accordingly
+        b = lineup.get_full_info(band[0], band[1])
+        bands_selection[b].set(1)
 
 
 # TODO: what about bands / events that take place twice but on different days?
-def export_selection(bands_selection):
+def export_selection(lineup: LineUp, bands_selection: dict):
     selected_bands = []
     for band in bands_selection:
         checkbox = bands_selection[band]
@@ -232,9 +284,15 @@ def export_selection(bands_selection):
     f = open(filename, "w")
     i = 0
     for band in selected_bands:
-        f.write(band)
+        f.write(band.name)
+        f.write(',')
+        date_str = band.start.strftime('%x')
+        f.write(date_str)
+        f.write(',')
+        time_str = band.start.strftime('%X')
+        f.write(time_str)
         if i < len(selected_bands) - 1:
-            f.write(',')
+            f.write('\n')
         i += 1
 
 
@@ -248,9 +306,8 @@ def get_time_clashing_bands(selection, lineup):
         selection_full_info[date] = []  # list[Band]
 
     for band in selection:
-        band_full_info = lineup.get_full_info(band)
-        band_date = get_timeless_date(band_full_info.start)
-        selection_full_info[band_date].append(band_full_info)
+        band_date = get_timeless_date(band.start)
+        selection_full_info[band_date].append(band)
 
     for date in selection_full_info:
         bands_on_date = selection_full_info[date]
@@ -282,10 +339,10 @@ def get_time_clashing_bands(selection, lineup):
                     ((start_j > start_i and start_j < end_i) or (end_j > start_i and end_j < end_i))
                     ):
                     # there is a clash between these bands. add both to the clashing list
-                    if not clashing_bands.__contains__(band_i.name):
-                        clashing_bands.append(band_i.name)
-                    if not clashing_bands.__contains__(band_j.name):
-                        clashing_bands.append(band_j.name)
+                    if not clashing_bands.__contains__(band_i):
+                        clashing_bands.append(band_i)
+                    if not clashing_bands.__contains__(band_j):
+                        clashing_bands.append(band_j)
 
     return clashing_bands
 
@@ -380,8 +437,8 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_di
 
             # plot the band onto the correct stage
             col = 'lightgray'
-            if selection.__contains__(band.name):
-                if clashing_bands.__contains__(band.name):
+            if selection.__contains__(band):
+                if clashing_bands.__contains__(band):
                     col = 'red'
                 else:
                     col = 'green'
