@@ -29,6 +29,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
 
+from classes import LineUp
+
 
 def get_timeless_date(dt) -> datetime:
     # make a copy of the date, so as to not overwrite the original info
@@ -186,6 +188,41 @@ def export_alias_settings(table: CustomTable):
         i += 1
 
 
+def get_multi_bands(lineup: LineUp) -> dict:
+    # create a dictionary of all bands that present multiple times
+    # with their name as key and all the times as value
+    out = {}
+    for i in range(len(lineup.bands)):
+        band_i = lineup.bands[i]
+        # case 1: band_i.name is no in out
+        #           in that case, find all occurrences and add them to out
+        # case 2: band_i.name is already in out
+        #           in that case, all occurrences have been found
+
+        if band_i.name in out:
+            continue
+
+        # band_i is not in list yet, therefore add all occurrences
+        # it is safe to assume, that all occurrences come _after_ the current one
+        out[band_i.name] = [band_i]
+        for j in range(i+1, len(lineup.bands)):
+            band_j = lineup.bands[j]
+
+            if band_i.name == band_j.name:
+                out[band_i.name].append([band_j])
+
+    # now remove all entries with just one time
+    bands_to_remove = []
+    for name, band_list in out.items():
+        if len(band_list) == 1:
+            bands_to_remove.append(name)
+
+    for name in bands_to_remove:
+        del out[name]
+
+    return out
+
+
 def clear_selection(bands_selection):
     for band in bands_selection:
         bands_selection[band].set(0)
@@ -197,28 +234,39 @@ def import_selection(lineup, bands_selection):
     filepath = browse_files(file_types)
     f = open(filepath, "r")
 
-    # the bands are comma separated in just one line
-    line = f.read()
-    bands = line.split(",")
+    # the bands are one line each with the data and time comma separated as the next values
+    selection = []
+    for line in f:
+        split = line.split(",")
+        band_name = split[0]
+        date = split[1]
+        time = split[2]
+        date_time = datetime.strptime(date, "%x")
+        time = datetime.strptime(time, "%X")
+        date_time.hour = time.hour
+        date_time.minute = time.minute
+        date_time.second = time.second
+
+        selection.append((band_name, date_time))
 
     # check if any of the bands don't exist. if so, this is an illegal file and the user should be made aware
     bands_to_remove = []
-    for band in bands:
-        if not lineup.contains_band(band):
+    for band in selection:
+        if not lineup.contains_band(band[0]):
             err_msg = 'There are some bands in your selection, which are not present in the line up!'
             messagebox.showerror('Selection error', err_msg)
             bands_to_remove.append(band)
 
     # remove illegal bands
     for band in bands_to_remove:
-        bands.remove(band)
+        selection.remove(band)
 
     for band in bands:
         bands_selection[band].set(1)
 
 
 # TODO: what about bands / events that take place twice but on different days?
-def export_selection(bands_selection):
+def export_selection(lineup: LineUp, bands_selection: dict):
     selected_bands = []
     for band in bands_selection:
         checkbox = bands_selection[band]
@@ -232,9 +280,16 @@ def export_selection(bands_selection):
     f = open(filename, "w")
     i = 0
     for band in selected_bands:
+        info = lineup.get_full_info(band)
         f.write(band)
+        f.write(',')
+        date_str = info.start.strftime('%x')
+        f.write(date_str)
+        f.write(',')
+        time_str = info.start.strftime('%X')
+        f.write(time_str)
         if i < len(selected_bands) - 1:
-            f.write(',')
+            f.write('\n')
         i += 1
 
 

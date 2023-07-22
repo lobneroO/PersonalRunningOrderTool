@@ -26,6 +26,7 @@ from classes import Settings
 from classes import Stage
 
 from utils import browse_files
+from utils import get_multi_bands
 from utils import clear_selection
 from utils import export_selection
 from utils import import_selection
@@ -232,11 +233,15 @@ def open_band_selection_window():
     control_frame = Frame(selection_window)
     control_frame.grid(row=1, column=0)
 
+    # get every band that is featured more than once
+    multi_bands = get_multi_bands(lineup)
+
     # sort bands alphabetically. for that, we need an array with just the names
+    # and possibly the date, if the band plays multiple times
     bands_list = []
     for band in lineup.bands:
-        bands_list.append(band.name)
-    bands_list.sort()
+        bands_list.append(band)
+    bands_list.sort(key=lambda band: band.name)
 
     # the alphabetical order should be displayed downwards first, then to the right second
     # (e.g:     Aborted             Arch Enemy      Blind Guardian
@@ -264,7 +269,7 @@ def open_band_selection_window():
         band_checkbox.grid(row=row, column=2*column)
         bands_dict[band] = is_checked
 
-        band_label = Label(master=band_frame, text=band)
+        band_label = Label(master=band_frame, text=band.name)
         band_label.grid(row=row, column=2*column+1)
 
         row += 1
@@ -277,7 +282,7 @@ def open_band_selection_window():
     import_button.grid(row=0, column=0)
 
     export_button = Button(master=control_frame, text="Export Personal Running Order Selection",
-                           command=lambda: export_selection(bands_dict))
+                           command=lambda: export_selection(lineup, bands_dict))
     export_button.grid(row=0, column=1)
 
     clear_button = Button(master=control_frame, text="Clear selection",
