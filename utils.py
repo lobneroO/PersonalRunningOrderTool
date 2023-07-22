@@ -290,7 +290,14 @@ def get_time_clashing_bands(selection, lineup):
     return clashing_bands
 
 
-def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_list=None):
+def get_band_name(band_alias_dict: dict, band_name: str):
+    if band_name in band_alias_dict:
+        return band_alias_dict[band_name]
+
+    return band_name
+
+
+def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_dict=None):
     # TODO: make this alternating for a stage
     colors = ['lightgray', 'darkgray']
 
@@ -413,11 +420,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_li
                      va='top', fontsize=settings.band_time_font_size)
 
             # print the name of the band
-            band_name = band.name
-            if band.name in band_alias_list:
-                # if the user chooses to alias a band name, e.g. for brevity
-                # then replace it here in the print only (e.g. not in the band selection window)
-                band_name = band_alias_list[band_name]
+            band_name = get_band_name(band_alias_dict, band.name)
             plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band_name, ha='center', va='center',
                      fontsize=settings.band_name_font_size)
 

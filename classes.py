@@ -31,7 +31,6 @@ class Band:
     stage: enum
     start: datetime
     end: datetime
-    alias: string
 
 
 @dataclass

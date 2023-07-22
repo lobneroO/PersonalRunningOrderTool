@@ -284,9 +284,10 @@ def open_band_selection_window():
                           command=lambda: clear_selection(bands_dict))
     clear_button.grid(row=0, column=2)
 
-    save_order_button = Button(master=control_frame, text="Save Personal Running Order",
-                               command=lambda: print_running_order(lineup, settings, stages, bands_dict))
-    save_order_button.grid(row=0, column=3)
+    print_order_button = Button(master=control_frame, text="Print Personal Running Order",
+                                command=lambda:
+                                print_running_order(lineup, settings, stages, bands_dict, band_alias_dict))
+    print_order_button.grid(row=0, column=3)
 
 
 def open_settings_window():
@@ -368,12 +369,13 @@ def setup_gui():
     global stages
     create_running_order_button = Button(master=window, text="Create Complete Running Order",
                                          state=DISABLED,
-                                         command=lambda: print_running_order(lineup, settings, stages))
+                                         command=lambda:
+                                         print_running_order(lineup, settings, stages, None, band_alias_dict))
     create_running_order_button.grid(row=2, column=0, columnspan=3)
 
     create_personal_running_order_button = Button(master=window, text="Create Personal Running Order",
-                                           state=DISABLED,
-                                           command=lambda: open_band_selection_window())
+                                                  state=DISABLED,
+                                                  command=lambda: open_band_selection_window())
     create_personal_running_order_button.grid(row=3, column=0, columnspan=3)
 
     parse_button = Button(master=window, text="parse file",
