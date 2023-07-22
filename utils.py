@@ -23,6 +23,8 @@ from tkinter import END
 from tkinter import filedialog
 from tkinter import messagebox
 
+from custom_table import CustomTable
+
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.backends.backend_pdf as backend_pdf
@@ -94,6 +96,94 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
 
     print(filename)
     return filename
+
+
+def correct_row_keys(table: CustomTable):
+    data = table.model.data
+
+    # when deleting a row, the keys (which are just one based numbers for the rows)
+    # have to be reset. tkintertable does not do this itself, it will keep the old keys
+    # and then break when adding a new row (e.g. keys 0,1 exist, 0 is deleted, 1 remains,
+    # tkintertable will see one entry and therefore try to add key 1 a second time m( )
+    # furthermore, when adding a row on 0-based keys, it will just add the row key
+    # by the number of rows (e.g. keys 0,1 exist, an addRow will add key 3 m( m( m( )
+    row_num = 0
+    corrected_data = {}
+    for key, value in data.items():
+        corrected_data[row_num] = value
+        row_num += 1
+
+    table.model.data = {}
+    table.model.importDict(corrected_data)
+
+
+def get_alias_table_data(table: CustomTable):
+    alias_dict = {}
+    data = table.model.data
+
+    print(data)
+
+    # empty the band alias dict and refill it
+    rows = table.model.getRowCount()
+    for row in range(rows):
+        # for some reason, tkintertables adds from base 1
+        if row in data:
+            if 'Band alias' in data[row] and 'Band name' in data[row]:
+                alias_dict[data[row]['Band name']] = data[row]['Band alias']
+
+    return alias_dict
+
+
+def prepare_data_for_alias_table(data: dict) -> dict:
+
+    # layout of the data has to look like this
+    # data = {0: {'Band name': 'Heaven Shall Burn', 'Band alias': 'HSB'},
+    #        1: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
+
+    out_data = {}
+    # for tkintertables to work correctly, keys have to be 1 based, not 0 based
+    key = 0
+    for band_name, band_alias in data.items():
+        out_data[key] = {'Band name': band_name, 'Band alias': band_alias}
+        key += 1
+
+    print(out_data)
+    return out_data
+
+
+def import_alias_settings(table: CustomTable):
+    file_types = (("PRO Alias Files", "*.paf"), ("All files", "*.*"))
+
+    # first get the file to read the aliased names
+    file_path = browse_files(file_types)
+
+    table.clear_data_no_interaction()
+    table.importCSV(file_path, sep=',')
+
+
+def export_alias_settings(table: CustomTable):
+    file_types=(("PRO Alias Files", "*.paf"), ("All files", "*.*"))
+    file_path = save_file_as_browser(file_types)
+
+    # don't use the tables export function, as it will only write to a csv file,
+    # but won't allow for custom extension setting
+
+    data = get_alias_table_data(table)
+
+    f = open(file_path, "w")
+    i = 0
+
+    # write the column headers, otherwise the import won't work
+    f.write('Band name,Band alias\n')
+
+    # write list of aliases to simple "csv" file, one line per band and alias
+    for band_name, band_alias in data.items():
+        f.write(band_name)
+        f.write(',')
+        f.write(band_alias)
+        if i < len(data) - 1:
+            f.write('\n')
+        i += 1
 
 
 def clear_selection(bands_selection):
@@ -200,7 +290,14 @@ def get_time_clashing_bands(selection, lineup):
     return clashing_bands
 
 
-def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_list=None):
+def get_band_name(band_alias_dict: dict, band_name: str):
+    if band_name in band_alias_dict:
+        return band_alias_dict[band_name]
+
+    return band_name
+
+
+def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_dict=None):
     # TODO: make this alternating for a stage
     colors = ['lightgray', 'darkgray']
 
@@ -323,11 +420,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_li
                      va='top', fontsize=settings.band_time_font_size)
 
             # print the name of the band
-            band_name = band.name
-            if band.name in band_alias_list:
-                # if the user chooses to alias a band name, e.g. for brevity
-                # then replace it here in the print only (e.g. not in the band selection window)
-                band_name = band_alias_list[band_name]
+            band_name = get_band_name(band_alias_dict, band.name)
             plt.text(stage_names.index(stage)+1, (start + end) * 0.5, band_name, ha='center', va='center',
                      fontsize=settings.band_name_font_size)
 

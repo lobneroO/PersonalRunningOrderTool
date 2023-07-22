@@ -19,7 +19,6 @@ import datetime
 
 from tkinter import *
 from tkinter import messagebox
-from tkinter import ttk
 
 from classes import Band
 from classes import LineUp
@@ -32,8 +31,13 @@ from utils import export_selection
 from utils import import_selection
 from utils import print_running_order
 from utils import save_settings
+from utils import get_alias_table_data
+from utils import prepare_data_for_alias_table
+from utils import correct_row_keys
+from utils import import_alias_settings
+from utils import export_alias_settings
 
-from tkintertable import TableCanvas, TableModel
+from custom_table import CustomTable
 
 
 # The main window
@@ -138,22 +142,28 @@ def execute_parsing(file_path, buttons_to_activate):
         add_stages_to_gui(lineup.stages)
 
 
-def read_back_table_data(table: TableCanvas):
+def use_table_data(alias_window, table: CustomTable):
     global band_alias_dict
-    data = table.model.data
-
-    print(data)
-
-    # empty the band alias dict and refill it
-    band_alias_dict.clear()
-    rows = table.model.getRowCount()
-    columns = table.model.getColumnCount()
-    for row in range(rows):
-        # for some reason, tkintertables adds from base 1
-        key = row+1
-        band_alias_dict[data[key]['Band name']] = data[key]['Band alias']
+    band_alias_dict = get_alias_table_data(table)
 
     print(band_alias_dict)
+    if len(band_alias_dict) == 0:
+        print("fuck")
+    alias_window.destroy()
+
+
+def remove_table_line(table: CustomTable):
+    table.deleteRow()
+
+    correct_row_keys(table)
+    table.redraw()
+
+
+def add_table_line(table: CustomTable):
+    table.addRow()
+
+    correct_row_keys(table)
+    table.redraw()
 
 
 def open_band_alias_window():
@@ -171,31 +181,38 @@ def open_band_alias_window():
     control_frame = Frame(alias_window)
     control_frame.grid(row=0, column=1)
 
-    # TODO: debug, delete
-    band_alias_dict["Heaven Shall Burn"] = "HSB"
-    band_alias_dict["Killswitch Engage"] = "Killswitch"
-
-    # for tkintertables to work correctly, these have to be 1 based, not 0 based
-    data = {1: {'Band name': 'Heaven Shall Burn', 'Band alias': 'HSB'},
-            2: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
+    data = prepare_data_for_alias_table(band_alias_dict)
+    if len(data) == 0:
+        # ensure the table can be worked with. for that, it needs at least an empty entry
+        data[1] = {'Band name': '', 'Band alias': ''}
 
     # define tree early for the button interaction
-    # tree = ttk.Treeview(table_frame, column=("Band name", "Band alias"), show='headings', height=len(band_alias_dict))
-    table = TableCanvas(table_frame, data=data) #, read_only=False)
-    #table.sortTable(columnIndex=0)
+    table = CustomTable(table_frame, data=data)
     table.show()
+    # these do jack shit
+    table.autoResizeColumns()
+    table.adjustColumnWidths()
 
     # set up the controls
     plus_button = Button(master=control_frame, text="+",
-                         command=lambda: table.addRow())
+                         command=lambda: add_table_line(table))
     plus_button.grid(row=0, column=0)
-    minus_button = Button(master=control_frame, text="-")
+    minus_button = Button(master=control_frame, text="-",
+                          command=lambda: remove_table_line(table))
     minus_button.grid(row=0, column=1)
 
-    save_button = Button(master=control_frame, text="Save alias settings", command=lambda: read_back_table_data(table))
-    save_button.grid(row=1, column=0)
-    cancel_button = Button(master=control_frame, text="Cancel")
+    use_button = Button(master=control_frame, text="Use alias settings",
+                        command=lambda: use_table_data(alias_window, table))
+    use_button.grid(row=1, column=0)
+    cancel_button = Button(master=control_frame, text="Cancel", command=lambda: alias_window.destroy())
     cancel_button.grid(row=1, column=1)
+
+    import_button = Button(master=control_frame, text="Import alias settings",
+                           command=lambda: import_alias_settings(table))
+    import_button.grid(row=2, column=0)
+    export_button = Button(master=control_frame, text="Export alias settings",
+                           command=lambda: export_alias_settings(table))
+    export_button.grid(row=2, column=1)
 
 
 def open_band_selection_window():
@@ -267,9 +284,10 @@ def open_band_selection_window():
                           command=lambda: clear_selection(bands_dict))
     clear_button.grid(row=0, column=2)
 
-    save_order_button = Button(master=control_frame, text="Save Personal Running Order",
-                               command=lambda: print_running_order(lineup, settings, stages, bands_dict))
-    save_order_button.grid(row=0, column=3)
+    print_order_button = Button(master=control_frame, text="Print Personal Running Order",
+                                command=lambda:
+                                print_running_order(lineup, settings, stages, bands_dict, band_alias_dict))
+    print_order_button.grid(row=0, column=3)
 
 
 def open_settings_window():
@@ -351,12 +369,13 @@ def setup_gui():
     global stages
     create_running_order_button = Button(master=window, text="Create Complete Running Order",
                                          state=DISABLED,
-                                         command=lambda: print_running_order(lineup, settings, stages))
+                                         command=lambda:
+                                         print_running_order(lineup, settings, stages, None, band_alias_dict))
     create_running_order_button.grid(row=2, column=0, columnspan=3)
 
     create_personal_running_order_button = Button(master=window, text="Create Personal Running Order",
-                                           state=DISABLED,
-                                           command=lambda: open_band_selection_window())
+                                                  state=DISABLED,
+                                                  command=lambda: open_band_selection_window())
     create_personal_running_order_button.grid(row=3, column=0, columnspan=3)
 
     parse_button = Button(master=window, text="parse file",

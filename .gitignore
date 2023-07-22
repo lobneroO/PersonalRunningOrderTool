@@ -187,6 +187,7 @@ fabric.properties
 # exclude any inputs
 *.csv
 *.prot
+*.paf
 
 # exclude any results the script produces
 *.png
