@@ -25,6 +25,7 @@ from classes import LineUp
 from classes import Settings
 from classes import Stage
 
+from utils import get_day_str
 from utils import browse_files
 from utils import get_multi_bands
 from utils import clear_selection
@@ -236,12 +237,11 @@ def open_band_selection_window():
     # get every band that is featured more than once
     multi_bands = get_multi_bands(lineup)
 
-    # sort bands alphabetically. for that, we need an array with just the names
-    # and possibly the date, if the band plays multiple times
+    # sort bands alphabetically primarily and for start date secondarily
     bands_list = []
     for band in lineup.bands:
         bands_list.append(band)
-    bands_list.sort(key=lambda band: band.name)
+    bands_list.sort()
 
     # the alphabetical order should be displayed downwards first, then to the right second
     # (e.g:     Aborted             Arch Enemy      Blind Guardian
@@ -269,7 +269,11 @@ def open_band_selection_window():
         band_checkbox.grid(row=row, column=2*column)
         bands_dict[band] = is_checked
 
-        band_label = Label(master=band_frame, text=band.name)
+        label = band.name
+        if band.name in multi_bands:
+            label += ' (' + get_day_str(band.start) + ')'
+
+        band_label = Label(master=band_frame, text=label)
         band_label.grid(row=row, column=2*column+1)
 
         row += 1

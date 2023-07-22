@@ -35,6 +35,14 @@ class Band:
     def __hash__(self):
         return hash((self.name, self.start))
 
+    def __eq__(self, other):
+        return self.name == other.name and self.stage == other.stage and self.start == other.start and self.end == other.end
+
+    def __lt__(self, other):
+        if self.name.lower() == other.name.lower():
+            return self.start < other.start
+        return self.name.lower() < other.name.lower()
+
 
 @dataclass
 class LineUp:

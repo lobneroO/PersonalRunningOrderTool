@@ -41,6 +41,10 @@ def get_timeless_date(dt) -> datetime:
     return new_dt
 
 
+def get_day_str(date: datetime) -> str:
+    return date.strftime('%a')
+
+
 def browse_files(filetypes=(("All files", "*.*"),), entry_box=None):
     filename = filedialog.askopenfilename(initialdir=os.getcwd(),
                                           title="Select input data file",
