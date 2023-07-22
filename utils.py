@@ -98,6 +98,25 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
     return filename
 
 
+def correct_row_keys(table: CustomTable):
+    data = table.model.data
+
+    # when deleting a row, the keys (which are just one based numbers for the rows)
+    # have to be reset. tkintertable does not do this itself, it will keep the old keys
+    # and then break when adding a new row (e.g. keys 0,1 exist, 0 is deleted, 1 remains,
+    # tkintertable will see one entry and therefore try to add key 1 a second time m( )
+    # furthermore, when adding a row on 0-based keys, it will just add the row key
+    # by the number of rows (e.g. keys 0,1 exist, an addRow will add key 3 m( m( m( )
+    row_num = 0
+    corrected_data = {}
+    for key, value in data.items():
+        corrected_data[row_num] = value
+        row_num += 1
+
+    table.model.data = {}
+    table.model.importDict(corrected_data)
+
+
 def get_alias_table_data(table: CustomTable):
     alias_dict = {}
     data = table.model.data
@@ -108,21 +127,37 @@ def get_alias_table_data(table: CustomTable):
     rows = table.model.getRowCount()
     for row in range(rows):
         # for some reason, tkintertables adds from base 1
-        key = row+1
-        if key in data:
-            if 'Band alias' in data[key] and 'Band name' in data[key]:
-                alias_dict[data[key]['Band name']] = data[key]['Band alias']
+        if row in data:
+            if 'Band alias' in data[row] and 'Band name' in data[row]:
+                alias_dict[data[row]['Band name']] = data[row]['Band alias']
 
     return alias_dict
 
 
+def prepare_data_for_alias_table(data: dict) -> dict:
+
+    # layout of the data has to look like this
+    # data = {0: {'Band name': 'Heaven Shall Burn', 'Band alias': 'HSB'},
+    #        1: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
+
+    out_data = {}
+    # for tkintertables to work correctly, keys have to be 1 based, not 0 based
+    key = 0
+    for band_name, band_alias in data.items():
+        out_data[key] = {'Band name': band_name, 'Band alias': band_alias}
+        key += 1
+
+    print(out_data)
+    return out_data
+
+
 def import_alias_settings(table: CustomTable):
-    file_types=(("PRO Alias Files", "*.paf"),("All files", "*.*"))
+    file_types = (("PRO Alias Files", "*.paf"), ("All files", "*.*"))
 
     # first get the file to read the aliased names
     file_path = browse_files(file_types)
 
-    table.clearData()
+    table.clear_data_no_interaction()
     table.importCSV(file_path, sep=',')
 
 

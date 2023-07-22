@@ -32,6 +32,8 @@ from utils import import_selection
 from utils import print_running_order
 from utils import save_settings
 from utils import get_alias_table_data
+from utils import prepare_data_for_alias_table
+from utils import correct_row_keys
 from utils import import_alias_settings
 from utils import export_alias_settings
 
@@ -140,45 +142,28 @@ def execute_parsing(file_path, buttons_to_activate):
         add_stages_to_gui(lineup.stages)
 
 
-def read_back_table_data(table: CustomTable):
+def use_table_data(alias_window, table: CustomTable):
     global band_alias_dict
-    band_alias_dict = get_alias_table_data()
+    band_alias_dict = get_alias_table_data(table)
 
     print(band_alias_dict)
+    if len(band_alias_dict) == 0:
+        print("fuck")
+    alias_window.destroy()
 
 
 def remove_table_line(table: CustomTable):
     table.deleteRow()
-    # TODO: reset the keys (row numbers):
-    #       say record data is {1: {'key1': 'val1', 'key2': 'val2'}, 2: {'key1': 'val3', 'key2': 'val4}}
-    #       and you delete row with key 1
-    #       then the remaining data is {2: {'key1': 'val3', 'key2': 'val4}}
-    #       and the row's key is not updated
-    #       if now you add a row, tkintertable will try to add key 2, since it has seen only one key
-    #       and 2 is the logical follow up m(
-    data = table.model.data
 
-    row_num = 1
-    corrected_data = {}
-    for key, value in data.items():
-        corrected_data[row_num] = value
-        row_num += 1
-
-    table.model.data = {}
-    table.model.importDict(corrected_data)
-
+    correct_row_keys(table)
     table.redraw()
-
-    data = get_alias_table_data(table)
-    print(data)
 
 
 def add_table_line(table: CustomTable):
     table.addRow()
-    table.redraw()
 
-    data = get_alias_table_data(table)
-    print(data)
+    correct_row_keys(table)
+    table.redraw()
 
 
 def open_band_alias_window():
@@ -196,13 +181,10 @@ def open_band_alias_window():
     control_frame = Frame(alias_window)
     control_frame.grid(row=0, column=1)
 
-    # TODO: debug, delete
-    band_alias_dict["Heaven Shall Burn"] = "HSB"
-    band_alias_dict["Killswitch Engage"] = "Killswitch"
-
-    # for tkintertables to work correctly, these have to be 1 based, not 0 based
-    data = {1: {'Band name': 'Heaven Shall Burn', 'Band alias': 'HSB'},
-            2: {'Band name': 'Killswitch Engage', 'Band alias': 'Killswitch'}}
+    data = prepare_data_for_alias_table(band_alias_dict)
+    if len(data) == 0:
+        # ensure the table can be worked with. for that, it needs at least an empty entry
+        data[1] = {'Band name': '', 'Band alias': ''}
 
     # define tree early for the button interaction
     table = CustomTable(table_frame, data=data)
@@ -220,9 +202,9 @@ def open_band_alias_window():
     minus_button.grid(row=0, column=1)
 
     use_button = Button(master=control_frame, text="Use alias settings",
-                        command=lambda: read_back_table_data(table))
+                        command=lambda: use_table_data(alias_window, table))
     use_button.grid(row=1, column=0)
-    cancel_button = Button(master=control_frame, text="Cancel")
+    cancel_button = Button(master=control_frame, text="Cancel", command=lambda: alias_window.destroy())
     cancel_button.grid(row=1, column=1)
 
     import_button = Button(master=control_frame, text="Import alias settings",
