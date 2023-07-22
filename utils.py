@@ -75,8 +75,8 @@ def save_file_as_browser(filetypes=(("All files", "*.*"),)):
                                             title="Select path and name for the file to be saved to",
                                             filetypes=filetypes)
 
-    ext = os.path.splitext(filename)
-    if not ext.__contains__('.'):
+    ext = os.path.splitext(filename)[1]
+    if "." not in ext:
         # the user didn't enter an extension. add one here (unless *.* is allowed)
         # there seems to be no way to query the last selected extension in the file browser
         # therefore just add the default extension (i.e. the first one in filetypes)
@@ -269,7 +269,6 @@ def import_selection(lineup, bands_selection):
         bands_selection[b].set(1)
 
 
-# TODO: what about bands / events that take place twice but on different days?
 def export_selection(lineup: LineUp, bands_selection: dict):
     selected_bands = []
     for band in bands_selection:
