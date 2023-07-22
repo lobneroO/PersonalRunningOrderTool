@@ -59,9 +59,16 @@ class LineUp:
 
         return False
 
-    def get_full_info(self, band_name) -> Band:
+    def get_full_info(self, band_name: str) -> Band:
         for band in self.bands:
             if band.name == band_name:
+                return band
+
+        return None
+
+    def get_full_info(self, band_name: str, start: datetime) -> Band:
+        for band in self.bands:
+            if band.name == band_name and band.start == start:
                 return band
 
         return None

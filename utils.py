@@ -17,6 +17,7 @@
 
 import copy
 import datetime
+from datetime import datetime   # needed for access to strptime
 import os
 
 from tkinter import END
@@ -243,13 +244,8 @@ def import_selection(lineup, bands_selection):
     for line in f:
         split = line.split(",")
         band_name = split[0]
-        date = split[1]
-        time = split[2]
-        date_time = datetime.strptime(date, "%x")
-        time = datetime.strptime(time, "%X")
-        date_time.hour = time.hour
-        date_time.minute = time.minute
-        date_time.second = time.second
+        date = split[1] + ' ' + split[2].removesuffix('\n')
+        date_time = datetime.strptime(date, "%x %X")
 
         selection.append((band_name, date_time))
 
@@ -265,8 +261,12 @@ def import_selection(lineup, bands_selection):
     for band in bands_to_remove:
         selection.remove(band)
 
-    for band in bands:
-        bands_selection[band].set(1)
+    for band in selection:
+        # the band in selection is read out of the file, i.e. it  is only a tuple containing name and start date
+        # but the bands in the band_selection are from the full line up, therefore these don't match.
+        # get the correct line-up band first and then set the checkbox accordingly
+        b = lineup.get_full_info(band[0], band[1])
+        bands_selection[b].set(1)
 
 
 # TODO: what about bands / events that take place twice but on different days?
@@ -284,13 +284,12 @@ def export_selection(lineup: LineUp, bands_selection: dict):
     f = open(filename, "w")
     i = 0
     for band in selected_bands:
-        info = lineup.get_full_info(band)
-        f.write(band)
+        f.write(band.name)
         f.write(',')
-        date_str = info.start.strftime('%x')
+        date_str = band.start.strftime('%x')
         f.write(date_str)
         f.write(',')
-        time_str = info.start.strftime('%X')
+        time_str = band.start.strftime('%X')
         f.write(time_str)
         if i < len(selected_bands) - 1:
             f.write('\n')
