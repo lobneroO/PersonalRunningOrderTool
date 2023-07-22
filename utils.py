@@ -306,9 +306,8 @@ def get_time_clashing_bands(selection, lineup):
         selection_full_info[date] = []  # list[Band]
 
     for band in selection:
-        band_full_info = lineup.get_full_info(band)
-        band_date = get_timeless_date(band_full_info.start)
-        selection_full_info[band_date].append(band_full_info)
+        band_date = get_timeless_date(band.start)
+        selection_full_info[band_date].append(band)
 
     for date in selection_full_info:
         bands_on_date = selection_full_info[date]
@@ -340,10 +339,10 @@ def get_time_clashing_bands(selection, lineup):
                     ((start_j > start_i and start_j < end_i) or (end_j > start_i and end_j < end_i))
                     ):
                     # there is a clash between these bands. add both to the clashing list
-                    if not clashing_bands.__contains__(band_i.name):
-                        clashing_bands.append(band_i.name)
-                    if not clashing_bands.__contains__(band_j.name):
-                        clashing_bands.append(band_j.name)
+                    if not clashing_bands.__contains__(band_i):
+                        clashing_bands.append(band_i)
+                    if not clashing_bands.__contains__(band_j):
+                        clashing_bands.append(band_j)
 
     return clashing_bands
 
@@ -438,8 +437,8 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_di
 
             # plot the band onto the correct stage
             col = 'lightgray'
-            if selection.__contains__(band.name):
-                if clashing_bands.__contains__(band.name):
+            if selection.__contains__(band):
+                if clashing_bands.__contains__(band):
                     col = 'red'
                 else:
                     col = 'green'
