@@ -1,10 +1,11 @@
 # Table of Contents
 - [PersonalRunningOrderTool Description](#personalrunningordertool-description)
 - [What does it do](#what-does-it-do)
+- [Dependencies](#dependencies)
 - [Releases](#releases)
 - [Usage](#usage)
   * [Line Up .csv file](#line-up-csv-file)
-    + [Bands playing after 0:00 AM](#bands-playing-after-0-00-am)
+    + [Bands playing after midnight](#bands-playing-after-midnight)
   * [The GUI](#the-gui)
     + [Main window](#main-window)
     + [Settings window](#settings-window)
@@ -34,6 +35,10 @@ You can import multiple selection files.
 The export can be done in any file format you want to, as it is just a text file of band names separated by commas.
 However, the default will be ".prot" such that you can easily see that it belongs to PRO.
 
+# Dependencies
+The release executables have all dependencies "included", but if you want to build a release yourself or start the script,
+you will need to install [Tkintertable](https://github.com/dmnfarrell/tkintertable).
+
 # Releases
 The releases are created on Arch Linux, since that is what I use.
 I assume the Linux executable will work on any distribution, but I cannot test this at the moment.
@@ -61,7 +66,7 @@ Each band must be on its own line.
     `Fleshgod Apocalypse,17.08.2022,23:40,00:25,T-Stage`
     
 For every stage found in this file, a new column in the output graphics will be created. Thus, if you have a typo in this file for one band, it may end up in its own column.
-### Bands playing after 0:00 AM
+### Bands playing after midnight
 If you have a band, that plays after midnight, like at 1:00 AM, you will probably not want to associate it with the next day, even though that would technically be correct.
 Therefore, if your band is playing on 18.08.2022 at 1:00 AM, you will still want to give it the date 17.08.2022 to associate it with that day.
 For every start and end time < 4 (i.e. 4 AM), 24 hours will be added in the timetable (although the time stamps will show the correct time). 
