@@ -66,6 +66,7 @@ Each band must be on its own line.
     `Fleshgod Apocalypse,17.08.2022,23:40,00:25,T-Stage`
     
 For every stage found in this file, a new column in the output graphics will be created. Thus, if you have a typo in this file for one band, it may end up in its own column.
+
 ### Bands playing after midnight
 If you have a band, that plays after midnight, like at 1:00 AM, you will probably not want to associate it with the next day, even though that would technically be correct.
 Therefore, if your band is playing on 18.08.2022 at 1:00 AM, you will still want to give it the date 17.08.2022 to associate it with that day.
@@ -98,15 +99,15 @@ If your line-up file was correctly parsed, the two buttons "Create Complete Runn
 Furthermore, a list of stages will appear that you can individually select or deselect. 
 Only selected stages will be printed to your running order files.
 This way, if you won't need a stage, you can deselect it and get more space for all other stages.
+
 ![image](https://github.com/lobneroO/PersonalRunningOrderTool/assets/17877050/d5f1d27f-7674-412c-a558-82378de3a5f0)
-
-
 
 
 "Create Complete Running Order" will open a file browser for your output .pdf file. You can choose any destination and name you want, as long as you have writing rights in the chosen directory.
 Once a path was chosen, it will start to render the timetable and write it out. At the moment, there will be no success message (nor failure, for that matter). 
 You can simply check the directory you have chosen for saving.
 Per default, the directory of the program is selected, so if you are unsure where to look, start here.
+Note that the stage selection in the main window will affect the complete running order (and personal running order) output, whereas the band selection does not.
 
 "Create Personal Running Order" will open the Band selection for Personal Running Order window. 
 
@@ -190,6 +191,11 @@ While the basic functionality of PRO can give you a very helpful timetable, ther
       `axis_bl.set_ylim(27.3, 10.9)`
   Change these limits to what you need. Note that a wrap around for the clock is not yet supported, so if a band plays from 23:00 to 1:00,
   your limit would be at 25 rather than 1 (though it is advisable to add a bit of a margin, e.g. 25.3).
+- _The stage names overlap_
+
+  This is a problem of having so many stages. I tried to mitigate this with rotated stage name texts, as can be seen on the bottom axis,
+  but for some reason I could not figure out so far, it doesn't work on the mirrored top axis.
+  You can reduce the size of the stage name fonts in the Settings window or just rely on the bottom axis.
 
 
 # Building the project
