@@ -266,7 +266,10 @@ def import_selection(lineup, bands_selection):
         # but the bands in the band_selection are from the full line up, therefore these don't match.
         # get the correct line-up band first and then set the checkbox accordingly
         b = lineup.get_full_info(band[0], band[1])
-        bands_selection[b].set(1)
+        if b in bands_selection:
+            bands_selection[b].set(1)
+        else:
+            print("Could not find band ", band[0])
 
 
 def export_selection(lineup: LineUp, bands_selection: dict):
@@ -452,13 +455,13 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_di
 
             # print the actual start time to make it legible
             y_margin = 0.05
-            time_font_size = 7
-            plt.text(stage_names.index(stage) + x_offset, start + y_margin,
-                     '{0}:{1:0>2}'.format(band.start.time().hour, band.start.time().minute),
-                     va='top', fontsize=time_font_size)
+            start_time_str = str(band.start.time().hour) + ':' + str(band.start.time().minute).zfill(2)
+            plt.text(stage_names.index(stage) + x_offset, start + y_margin, start_time_str,
+                     va='top', fontsize=settings.band_time_font_size)
             # also the end time on the opposite corner (thus preventing it from writing over the start time)
             # first, just plot the time to get the size of it (and plot it somewhere where it can't be seen)
-            t = plt.text(-10, -10, '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
+            end_time_str = str(band.end.time().hour) + ':' + str(band.end.time().minute).zfill(2)
+            t = plt.text(-10, -10, end_time_str,
                           va='top', fontsize=settings.band_time_font_size)
             bb = t.get_window_extent(renderer=fig.canvas.get_renderer()).transformed(
                 axis_bl.transData.inverted())
@@ -472,7 +475,7 @@ def print_running_order(lineup, settings, stages, bands_dict=None, band_alias_di
             y_coord = end + bb.height
 
             plt.text(x_coord, y_coord,
-                     '{0}:{1:0<2}'.format(band.end.time().hour, band.end.time().minute),
+                     end_time_str,
                      va='top', fontsize=settings.band_time_font_size)
 
             # print the name of the band
